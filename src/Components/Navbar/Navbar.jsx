@@ -3,7 +3,7 @@ import logoCharada from '../../assets/img/charada_logo.png';
 
 const Navbar = ({ cartItems, setShowCart }) => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary-gradient sticky-top">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <div className="container">
         <a className="navbar-brand d-flex align-items-center" href="#">
           <img src={logoCharada} width="40" height="40" className="me-2" alt="Logo" />
