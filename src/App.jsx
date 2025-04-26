@@ -26,8 +26,8 @@ const [showCart, setShowCart] = useState(false);
 
       <Produto />
 
-      {/* Newsletter */}
-      <Newsletter />
+      {/* Newsletter 
+      <Newsletter />*/}
       {/*Trazer footer aqui*/}
       <Footer />
 

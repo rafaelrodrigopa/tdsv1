@@ -1,5 +1,5 @@
 import React from 'react';
-import logoCharada from '../../assets/img/charada-motos.svg';
+import logoCharada from '../../assets/img/charada_logo.png';
 
 const Navbar = ({ cartItems, setShowCart }) => {
   return (
@@ -24,9 +24,9 @@ const Navbar = ({ cartItems, setShowCart }) => {
           <ul className="navbar-nav me-auto">
             {/* Links podem ser adicionados aqui quando necessário */}
           </ul>
-          <div className="d-flex">
-            <button className="btn btn-outline-light me-2">
-              <i className="bi bi-person-fill me-1"></i> Login
+          <div className="d-flex" style={{color: '#000'}}>
+            <button className="btn btn-outline-dark me-2 bg-white" style={{color: '#000', bakckgroundColor: '#fff'}}> 
+              <i className="bi bi-person-fill me-1" ></i> Login
             </button>
             <button 
               className="btn btn-light text-primary fw-bold position-relative"
