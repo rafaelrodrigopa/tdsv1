@@ -14,7 +14,7 @@ const Categoria = ({ activeTab, setActiveTab }) => {
         
         // Create the categories array with the "Todos" option first
         const formattedCategories = [
-          { id: 'todos', label: 'Todos', color: '#0d6efd' }, // Default blue color for "Todos"
+          //{ id: 'todos', label: 'Todos', color: '#0d6efd' }, // Default blue color for "Todos"
           ...categoriesData.map(cat => ({
             id: cat.id,
             label: cat.name,

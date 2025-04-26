@@ -4,7 +4,7 @@ import { productService } from '../../services/firebase_products';
 import { categoryService } from '../../services/firebase_categories';
 
 const Produto = () => {
-  const [activeTab, setActiveTab] = useState('todos');
+  const [activeTab, setActiveTab] = useState(null); // Removido 'todos' como padrão
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +21,6 @@ const Produto = () => {
           categoryService.getCategories()
         ]);
         
-
         // Verifica se temos dados
         if (!productsData || !categoriesData) {
           throw new Error("Dados não encontrados");
@@ -31,7 +30,6 @@ const Produto = () => {
         const productsWithCategories = productsData.map(product => {
           const productCategory = categoriesData.find(cat => cat.id === product.id_categoria);
           
-
           return {
             ...product,
             categoryName: productCategory?.name || 'Sem categoria'
@@ -40,12 +38,13 @@ const Produto = () => {
 
         setProducts(productsWithCategories);
         
-        // Cria array de categorias incluindo "Todos" como primeira opção
-        const allCategories = [
-          { id: 'todos', name: 'Todos' },
-          ...categoriesData
-        ];
-        setCategories(allCategories);
+        // Define as categorias (sem a opção "Todos")
+        setCategories(categoriesData);
+        
+        // Define a primeira categoria como ativa por padrão
+        if (categoriesData.length > 0 && !activeTab) {
+          setActiveTab(categoriesData[0].id);
+        }
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
         setError("Erro ao carregar produtos. Tente novamente mais tarde.");
@@ -57,14 +56,14 @@ const Produto = () => {
     fetchData();
   }, []);
 
-  const filteredProducts = activeTab === 'todos' 
-    ? products 
-    : products.filter(product => product.id_categoria === activeTab);
+  const filteredProducts = activeTab 
+    ? products.filter(product => product.id_categoria === activeTab)
+    : []; // Retorna array vazio se nenhuma categoria estiver selecionada
 
   if (isLoading) {
     return (
       <div className="container py-5">
-        <h2 className="text-center mb-4">Nossos Produtos</h2>
+        {/*<h2 className="text-center mb-4">Nossos Produtos</h2>*/}
         <div className="row g-4">
           {[...Array(6)].map((_, index) => (
             <div key={index} className="col-md-6 col-lg-4">
@@ -95,13 +94,15 @@ const Produto = () => {
 
   return (
     <div className="container py-5">
-      <h2 className="text-center mb-4">Nossos Produtos</h2>
+      {/*<h2 className="text-center mb-4">Nossos Produtos</h2>*/}
 
-      <Categoria 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        categories={categories}
-      />
+      {categories.length > 0 && (
+        <Categoria 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          categories={categories}
+        />
+      )}
 
       {filteredProducts.length === 0 ? (
         <div className="text-center py-5">
@@ -118,7 +119,7 @@ const Produto = () => {
                 )}
                 <div className="card-img-top bg-light d-flex align-items-center justify-content-center" 
                      style={{ height: '200px' }}>
-                  <span className="text-muted"><img src={product.imagem} alt="" srcset="" style={{width: '100px'}} /></span>
+                  <img src={product.imagem} alt={product.nome} style={{maxWidth: '100%', maxHeight: '100%', objectFit: 'contain'}} />
                 </div>
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-start mb-2">
