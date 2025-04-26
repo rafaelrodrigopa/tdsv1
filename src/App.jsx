@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import logoCharada from './assets/img/charada-motos.svg';
 import './App.css';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState('todos');
+
+const [activeTab, setActiveTab] = useState('todos');
+
+const [cartItems, setCartItems] = useState([]);
+const [showCart, setShowCart] = useState(false);
+
+
+
+const addToCart = (item) => {
+  setCartItems([...cartItems, item]);
+  // Feedback visual
+  document.getElementById(`card-${item.id}`).classList.add('added-to-cart');
+  setTimeout(() => {
+    document.getElementById(`card-${item.id}`).classList.remove('added-to-cart');
+  }, 1000);
+};
+
+
+
+
   
   const menuItems = [
     { id: 1, name: 'Açaí Tradicional', description: 'Açaí puro batido com guaraná', price: 'R$ 12,90', img: 'https://images.unsplash.com/photo-1551790628-6a9d8a8a8b8d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60', category: 'classicos' },
@@ -22,40 +43,57 @@ const App = () => {
     <div className="App">
       {/* Navbar Moderna */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary-gradient sticky-top">
-        <div className="container">
-          <a className="navbar-brand d-flex align-items-center" href="#">
-            <img src="https://i.imgur.com/5X5X5X5.png" width="40" height="40" className="me-2" alt="Logo" />
-            <span className="fw-bold">Açaí Central</span>
-          </a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <a className="nav-link active" href="#">Início</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Cardápio</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Promoções</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">Contato</a>
-              </li>
-            </ul>
-            <div className="d-flex">
-              <button className="btn btn-outline-light me-2">
-                <i className="bi bi-person-fill me-1"></i> Login
-              </button>
-              <button className="btn btn-light text-primary fw-bold">
-                <i className="bi bi-cart-fill me-1"></i> Pedir Online
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+  <div className="container">
+    <a className="navbar-brand d-flex align-items-center" href="#">
+      <img src={logoCharada} width="40" height="40" className="me-2" alt="Logo" />
+      <span className="fw-bold">Charada</span>
+    </a>
+    <button 
+      className="navbar-toggler" 
+      type="button" 
+      data-bs-toggle="collapse" 
+      data-bs-target="#navbarNav" 
+      aria-controls="navbarNav" 
+      aria-expanded="false" 
+      aria-label="Toggle navigation"
+    >
+      <span className="navbar-toggler-icon"></span>
+    </button>
+    <div className="collapse navbar-collapse" id="navbarNav">
+      <ul className="navbar-nav me-auto">
+        {/*<li className="nav-item">
+          <a className="nav-link active" href="#">Início</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link" href="#">Cardápio</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link" href="#">Promoções</a>
+        </li>
+        <li className="nav-item">
+          <a className="nav-link" href="#">Contato</a>
+        </li>*/}
+      </ul>
+      <div className="d-flex">
+        <button className="btn btn-outline-light me-2">
+          <i className="bi bi-person-fill me-1"></i> Login
+        </button>
+        
+<button 
+  className="btn btn-light text-primary fw-bold position-relative"
+  onClick={() => setShowCart(!showCart)}
+>
+  <i className="bi bi-cart-fill me-1"></i> Pedir Online
+  {cartItems.length > 0 && (
+    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {cartItems.length}
+    </span>
+  )}
+</button>
+      </div>
+    </div>
+  </div>
+</nav>
 
       {/* Hero Section */}
       <header className="hero-section">
@@ -183,6 +221,38 @@ const App = () => {
         </div>
       </section>
 
+      // Modal do carrinho (adicione antes do footer):
+{showCart && (
+  <div className="cart-modal">
+    <div className="cart-content">
+      <h4>Seu Pedido</h4>
+      {cartItems.length === 0 ? (
+        <p>Seu carrinho está vazio</p>
+      ) : (
+        <ul className="list-group mb-3">
+          {cartItems.map((item, index) => (
+            <li key={index} className="list-group-item d-flex justify-content-between">
+              <span>{item.name}</span>
+              <span>{item.price}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="d-flex justify-content-between">
+        <button 
+          className="btn btn-outline-secondary"
+          onClick={() => setShowCart(false)}
+        >
+          Continuar Comprando
+        </button>
+        <button className="btn btn-primary">
+          Finalizar Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {/* Footer */}
       <footer className="bg-dark text-white pt-5 pb-4">
         <div className="container">
@@ -231,10 +301,6 @@ const App = () => {
         </div>
       </footer>
 
-      {/* Bootstrap Icons */}
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" />
-      {/* Bootstrap JS */}
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     </div>
   );
 };
