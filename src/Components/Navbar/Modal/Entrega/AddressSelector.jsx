@@ -5,6 +5,7 @@ import axios from 'axios';
 import { getStoreAddress } from '../../../../services/firebase_end'; // Ajuste o caminho conforme sua estrutura
 import ServiceModal from '../ServiceModal/ServiceModal';
 import AddressForm from '../CEP/AddressForm'
+import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
@@ -134,35 +135,22 @@ const AddressSelector = () => {
         </Modal.Header>
         <Modal.Body>
           <div className="d-grid gap-3">
-            <Button
-              variant={deliveryOption === 'pickup' ? 'success' : 'outline-secondary'}
-              onClick={() => handleDeliverySelection('pickup')}
-              className="text-start p-3"
-            >
-              <div className="d-flex align-items-center">
-                {deliveryOption === 'pickup' && <FaCheckCircle className="me-2" />}
-                <FaStore className="me-3" size={24} />
-                <div>
-                  <h5 className="mb-1">Retirar na loja</h5>
-                  <small className="text-muted">{storeAddress.street}, {storeAddress.number}</small>
-                </div>
-              </div>
-            </Button>
+            
+          <div className="d-grid gap-3">
+            <DeliveryOptionButton
+              option="pickup"
+              selectedOption={deliveryOption}
+              onSelect={handleDeliverySelection}
+              storeAddress={storeAddress}
+            />
+            <DeliveryOptionButton
+              option="delivery"
+              selectedOption={deliveryOption}
+              onSelect={handleDeliverySelection}
+              storeAddress={storeAddress}
+            />
+          </div>
 
-            <Button
-              variant={deliveryOption === 'delivery' ? 'success' : 'outline-secondary'}
-              onClick={() => handleDeliverySelection('delivery')}
-              className="text-start p-3"
-            >
-              <div className="d-flex align-items-center">
-                {deliveryOption === 'delivery' && <FaCheckCircle className="me-2" />}
-                <FaMotorcycle className="me-3" size={24} />
-                <div>
-                  <h5 className="mb-1">Entregar no meu endereço</h5>
-                  <small className="text-muted">Frete calculado conforme localização</small>
-                </div>
-              </div>
-            </Button>
           </div>
 
           {deliveryOption === 'pickup' && (
