@@ -32,3 +32,44 @@ export const enderecoService = {
     }
   }
 };
+
+// Função para buscar o endereço da loja
+export const getStoreAddress = async () => {
+  try {
+    // Busca o primeiro documento da coleção "endereco"
+    const querySnapshot = await getDocs(collection(db, 'endereco'));
+    
+    if (!querySnapshot.empty) {
+      // Pega o primeiro documento (já que é o único)
+      const docData = querySnapshot.docs[0].data();
+      
+      return {
+        street: `${docData.logradouro || ''} ${docData.nomeLogradouro || ''}`.trim() || 'Endereço não informado',
+        number: docData.numero?.toString() || 'S/N',
+        neighborhood: docData.bairro || 'Bairro não informado',
+        city: docData.cidade || 'Cidade não informada',
+        state: docData.sigla || 'UF'
+      };
+    } else {
+      console.warn('Nenhum endereço encontrado na coleção "endereco". Usando endereço padrão.');
+      return getDefaultAddress();
+    }
+  } catch (error) {
+    console.error('Erro ao buscar endereço:', error);
+    return getDefaultAddress();
+  }
+};
+
+// Endereço padrão para fallback
+const getDefaultAddress = () => ({
+  street: 'Rua Arcílico Fderzoni ||',
+  number: '986 ||',
+  neighborhood: 'Jardim Silva ||',
+  city: 'Francisco Morato ||',
+  state: 'São Paulo ||'
+});
+
+// Exportação padrão para compatibilidade
+export default {
+  getStoreAddress
+};

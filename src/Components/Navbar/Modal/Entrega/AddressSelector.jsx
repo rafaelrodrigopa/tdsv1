@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Accordion, Form } from 'react-bootstrap';
 import { FaCheckCircle, FaMotorcycle, FaStore } from 'react-icons/fa';
 import axios from 'axios';
+import { getStoreAddress } from '../../../../services/firebase_end'; // Ajuste o caminho conforme sua estrutura
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState(null);
   const [cep, setCep] = useState('');
-  const [address, setAddress] = useState(null);
+  const [address, setAddress] = useState({
+    street: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
+    city: '',
+    state: ''
+  });
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const [storeAddress, setStoreAddress] = useState(null);
+  const [loadingStoreAddress, setLoadingStoreAddress] = useState(true);
   const [clientData, setClientData] = useState({
     name: '',
     phone: '',
@@ -16,33 +26,58 @@ const AddressSelector = () => {
     plate: ''
   });
 
-  // Endereço da loja (exemplo)
-  const storeAddress = {
-    street: 'Rua da Loja',
-    number: '123',
-    neighborhood: 'Centro'
-  };
+  // Busca o endereço da loja ao carregar o componente
+  useEffect(() => {
+    const loadStoreAddress = async () => {
+      try {
+        const addressData = await getStoreAddress();
+        setStoreAddress(addressData);
+      } catch (error) {
+        console.error('Erro ao carregar endereço:', error);
+        // Define um endereço padrão em caso de erro
+        setStoreAddress({
+          street: 'Rua da Loja',
+          number: '123',
+          neighborhood: 'Centro',
+          city: 'Cidade Padrão',
+          state: 'SP'
+        });
+      } finally {
+        setLoadingStoreAddress(false);
+      }
+    };
+
+    loadStoreAddress();
+  }, []);
 
   const handleCepSearch = async () => {
     try {
-      // Usando API ViaCEP (sem CORS)
       const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
       setAddress({
-        street: response.data.logradouro,
+        street: response.data.logradouro || '',
         number: '',
         complement: '',
-        neighborhood: response.data.bairro,
-        city: response.data.localidade,
-        state: response.data.uf
+        neighborhood: response.data.bairro || '',
+        city: response.data.localidade || '',
+        state: response.data.uf || ''
       });
     } catch (error) {
       alert('CEP não encontrado ou erro na busca');
+      // Mantém os campos vazios em caso de erro
+      setAddress({
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: ''
+      });
     }
   };
 
   const handleDeliverySelection = (option) => {
     setDeliveryOption(option);
-    if (option === 'pickup') {
+    if (option === 'pickup' && storeAddress) {
       setAddress({
         ...storeAddress,
         isStore: true
@@ -63,6 +98,15 @@ const AddressSelector = () => {
     setShowServiceModal(false);
     setShowModal(false);
   };
+
+  if (loadingStoreAddress) {
+    return <div className="text-center my-3">Carregando endereço da loja...</div>;
+  }
+
+
+  if (!storeAddress) {
+    return <div className="text-center my-3 text-danger">Não foi possível carregar o endereço da loja</div>;
+  }
 
   return (
     <>
@@ -89,7 +133,7 @@ const AddressSelector = () => {
       {/* Modal principal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Escolha o tipo de serviço</Modal.Title>
+          <Modal.Title>O que vai ser hoje? Produto ou Serviço?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="d-grid gap-3">
@@ -103,7 +147,7 @@ const AddressSelector = () => {
                 <FaStore className="me-3" size={24} />
                 <div>
                   <h5 className="mb-1">Retirar na loja</h5>
-                  <small className="text-muted">Av. {storeAddress.street}, {storeAddress.number}</small>
+                  <small className="text-muted">{storeAddress.street}, {storeAddress.number}</small>
                 </div>
               </div>
             </Button>
@@ -169,47 +213,63 @@ const AddressSelector = () => {
                   </Form.Group>
 
                   {address && (
-                    <>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Logradouro</Form.Label>
-                        <Form.Control 
-                          type="text" 
-                          value={address.street} 
-                          readOnly 
-                        />
-                      </Form.Group>
-                      <div className="row">
-                        <div className="col-4">
-                          <Form.Group className="mb-3">
-                            <Form.Label>Número</Form.Label>
-                            <Form.Control
-                              type="text"
-                              value={address.number}
-                              onChange={(e) => setAddress({...address, number: e.target.value})}
-                            />
-                          </Form.Group>
-                        </div>
-                        <div className="col-8">
-                          <Form.Group className="mb-3">
-                            <Form.Label>Complemento</Form.Label>
-                            <Form.Control
-                              type="text"
-                              value={address.complement}
-                              onChange={(e) => setAddress({...address, complement: e.target.value})}
-                            />
-                          </Form.Group>
-                        </div>
-                      </div>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Bairro</Form.Label>
-                        <Form.Control 
-                          type="text" 
-                          value={address.neighborhood} 
-                          readOnly 
-                        />
-                      </Form.Group>
-                    </>
-                  )}
+  <>
+    <Form.Group className="mb-3">
+      <Form.Label>Logradouro</Form.Label>
+      <Form.Control 
+        type="text" 
+        value={address.street || ''} // Garante string vazia se undefined
+        readOnly 
+      />
+    </Form.Group>
+    <div className="row">
+      <div className="col-4">
+        <Form.Group className="mb-3">
+          <Form.Label>Número</Form.Label>
+          <Form.Control
+            type="text"
+            value={address.number || ''}
+            onChange={(e) => setAddress({...address, number: e.target.value})}
+          />
+        </Form.Group>
+      </div>
+      <div className="col-8">
+        <Form.Group className="mb-3">
+          <Form.Label>Complemento</Form.Label>
+          <Form.Control
+            type="text"
+            value={address.complement || ''}
+            onChange={(e) => setAddress({...address, complement: e.target.value})}
+          />
+        </Form.Group>
+      </div>
+    </div>
+    <Form.Group className="mb-3">
+      <Form.Label>Bairro</Form.Label>
+      <Form.Control 
+        type="text" 
+        value={address.neighborhood || ''} 
+        readOnly 
+      />
+    </Form.Group>
+    <Form.Group className="mb-3">
+      <Form.Label>Cidade</Form.Label>
+      <Form.Control 
+        type="text" 
+        value={address.city || ''} 
+        readOnly 
+      />
+    </Form.Group>
+    <Form.Group className="mb-3">
+      <Form.Label>Estado</Form.Label>
+      <Form.Control 
+        type="text" 
+        value={address.state || ''} 
+        readOnly 
+      />
+    </Form.Group>
+  </>
+)}
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
