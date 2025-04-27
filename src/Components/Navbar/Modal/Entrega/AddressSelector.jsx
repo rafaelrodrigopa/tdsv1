@@ -3,6 +3,7 @@ import { Modal, Button, Accordion, Form } from 'react-bootstrap';
 import { FaCheckCircle, FaMotorcycle, FaStore } from 'react-icons/fa';
 import axios from 'axios';
 import { getStoreAddress } from '../../../../services/firebase_end'; // Ajuste o caminho conforme sua estrutura
+import ServiceModal from '../ServiceModal/ServiceModal';
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
@@ -93,11 +94,6 @@ const AddressSelector = () => {
     }
   };
 
-  const handleServiceSubmit = () => {
-    // Lógica para enviar dados do agendamento
-    setShowServiceModal(false);
-    setShowModal(false);
-  };
 
   if (loadingStoreAddress) {
     return <div className="text-center my-3">Carregando endereço da loja...</div>;
@@ -285,55 +281,16 @@ const AddressSelector = () => {
       </Modal>
 
       {/* Modal de agendamento de serviço */}
-      <Modal show={showServiceModal} onHide={() => setShowServiceModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Agendar Serviço</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Nome Completo</Form.Label>
-              <Form.Control
-                type="text"
-                value={clientData.name}
-                onChange={(e) => setClientData({...clientData, name: e.target.value})}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Telefone</Form.Label>
-              <Form.Control
-                type="tel"
-                value={clientData.phone}
-                onChange={(e) => setClientData({...clientData, phone: e.target.value})}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Modelo da Moto</Form.Label>
-              <Form.Control
-                type="text"
-                value={clientData.bikeModel}
-                onChange={(e) => setClientData({...clientData, bikeModel: e.target.value})}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Placa</Form.Label>
-              <Form.Control
-                type="text"
-                value={clientData.plate}
-                onChange={(e) => setClientData({...clientData, plate: e.target.value})}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowServiceModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleServiceSubmit}>
-            Finalizar Agendamento
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ServiceModal
+        show={showServiceModal}
+        onHide={() => setShowServiceModal(false)}
+        onSubmit={(data) => {
+          // Lógica original de submissão
+          console.log('Dados do agendamento:', data);
+          setShowServiceModal(false);
+          setShowModal(false);
+        }}
+      />
     </>
   );
 };
