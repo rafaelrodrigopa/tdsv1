@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Categoria from '../Categoria/Categoria';
 import { productService } from '../../services/firebase_products';
 import { categoryService } from '../../services/firebase_categories';
+import LoadingSkeleton from './LoadingSkeleton/LoadingSkeleton';
 import './Produto.css'; // Importação do CSS
 
 const Produto = () => {
@@ -136,7 +137,7 @@ const Produto = () => {
   }, {});
 
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton count={6}/>;
   }
 
   if (error) {
@@ -228,7 +229,7 @@ const ProductCard = ({ product }) => (
 );
 
 // Componente auxiliar para o estado de loading
-const LoadingSkeleton = () => (
+{/*const LoadingSkeleton = () => (
   <div className="container py-5">
     <div className="row g-4">
       {[...Array(6)].map((_, index) => (
@@ -247,6 +248,6 @@ const LoadingSkeleton = () => (
       ))}
     </div>
   </div>
-);
+);*/}
 
 export default Produto;
