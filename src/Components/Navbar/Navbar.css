@@ -1,0 +1,154 @@
+:root {
+  /* Cores personalizáveis */
+  --navbar-bg-color-azul: #00BFFF;
+  --navbar-bg-color-amarelo: #FFEB00;
+  --navbar-text-color: #212529;
+  --navbar-icon-color: #212529;
+  --navbar-border-color: #dee2e6;
+  --navbar-hover-color: #f8f9fa;
+  --navbar-search-bg: #ffffff;
+  --navbar-menu-bg: #ffffff;
+  --navbar-menu-text: #212529;
+
+  /* Cores para tema escuro */
+  --dark-navbar-bg-color: #2c3e50;
+  --dark-navbar-text-color: #ecf0f1;
+  --dark-navbar-icon-color: #ecf0f1;
+  --dark-navbar-border-color: #34495e;
+  --dark-navbar-hover-color: #34495e;
+  --dark-navbar-search-bg: #34495e;
+  --dark-navbar-menu-bg: #2c3e50;
+  --dark-navbar-menu-text: #ecf0f1;
+
+  /* Espaçamentos */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  
+  /* Tipografia */
+  --font-size-base: 1rem;
+  --font-size-lg: 1.75rem;
+  
+  /* Transições */
+  --transition-fast: 0.2s;
+  --transition-medium: 0.3s;
+  
+  /* Z-index */
+  --z-index-search: 1020;
+  
+  /* Dimensões */
+  --offcanvas-width: 280px;
+  --navbar-height: 60px;
+  --shadow-size: 0 2px 4px;
+}
+
+/* Navbar principal */
+.custom-navbar {
+  background: linear-gradient(90deg, var(--navbar-bg-color-azul), var(--navbar-bg-color-amarelo));
+  color: var(--navbar-text-color);
+  border-bottom: 1px solid var(--navbar-border-color);
+  min-height: var(--navbar-height);
+}
+
+/* Off-canvas positioning */
+.custom-offcanvas {
+  top: var(--navbar-height) !important;
+  height: calc(100vh - var(--navbar-height)) !important;
+  width: var(--offcanvas-width);
+  background-color: var(--navbar-menu-bg);
+  color: var(--navbar-menu-text);
+  border-right: 1px solid var(--navbar-border-color);
+}
+
+.offcanvas-backdrop {
+  top: var(--navbar-height) !important;
+  height: calc(100vh - var(--navbar-height)) !important;
+}
+
+/* Search bar */
+.search-bar {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  background: var(--navbar-search-bg);
+  z-index: var(--z-index-search);
+  box-shadow: var(--shadow-size) rgba(0,0,0,0.1);
+  transition: top var(--transition-medium) ease;
+}
+
+.search-bar.active {
+  top: var(--navbar-height);
+}
+
+/* Text and icons */
+.custom-navbar .navbar-text,
+.custom-navbar .small,
+.custom-navbar .fw-bold {
+  color: var(--navbar-text-color) !important;
+}
+
+.custom-navbar .btn-link,
+.custom-navbar .bi {
+  color: var(--navbar-icon-color) !important;
+}
+
+/* Menu items */
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  transition: all var(--transition-fast);
+  color: var(--navbar-menu-text);
+}
+
+.menu-item:hover {
+  background-color: var(--navbar-hover-color);
+}
+
+/* Toggle button */
+.custom-toggler {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-xs);
+}
+
+.custom-toggler:focus {
+  box-shadow: none;
+}
+
+/* Focus states */
+[data-bs-toggle="offcanvas"]:focus-visible,
+.menu-item:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Active states */
+.menu-item:active {
+  transform: scale(0.98);
+}
+
+/* Dark mode */
+.custom-navbar.dark-mode {
+  --navbar-text-color: var(--dark-navbar-text-color);
+  --navbar-icon-color: var(--dark-navbar-icon-color);
+  --navbar-border-color: var(--dark-navbar-border-color);
+  --navbar-hover-color: var(--dark-navbar-hover-color);
+  --navbar-search-bg: var(--dark-navbar-search-bg);
+  --navbar-menu-bg: var(--dark-navbar-menu-bg);
+  --navbar-menu-text: var(--dark-navbar-menu-text);
+  
+  background: var(--dark-navbar-bg-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  :root {
+    --navbar-height: 56px;
+  }
+  
+  .custom-offcanvas {
+    width: 75%;
+  }
+}

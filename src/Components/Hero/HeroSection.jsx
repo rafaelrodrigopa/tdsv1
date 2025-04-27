@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import imgFundo from '../../assets/img/img_fundo_resized.jpg';
 import { horarioService } from '../../services/firebase_func';
 import { enderecoService } from '../../services/firebase_end';
-import imgLogoCharada from '../../assets/img/charada_logo_light_200.png';
+import imgLogoCharada from '../../assets/img/img_logo_original_charada_sem_fundo.png';
 
 const HeroSection = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,47 +1,81 @@
-import React, { useState } from 'react';
-import logoCharada from '../../assets/img/charada_logo.png';
+import React, { useState, useEffect } from 'react';
+import './Navbar.css';
 
 const Navbar = () => {
   const [searchActive, setSearchActive] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   const toggleSearch = () => {
     setSearchActive(!searchActive);
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  useEffect(() => {
+    const adjustOffcanvasPosition = () => {
+      const navbar = document.querySelector('.custom-navbar');
+      const offcanvas = document.querySelector('.custom-offcanvas');
+      const backdrop = document.querySelector('.offcanvas-backdrop');
+      
+      if (navbar && offcanvas) {
+        const navbarHeight = navbar.offsetHeight;
+        offcanvas.style.top = `${navbarHeight}px`;
+        offcanvas.style.height = `calc(100vh - ${navbarHeight}px)`;
+        
+        if (backdrop) {
+          backdrop.style.top = `${navbarHeight}px`;
+          backdrop.style.height = `calc(100vh - ${navbarHeight}px)`;
+        }
+      }
+    };
+
+    adjustOffcanvasPosition();
+    window.addEventListener('resize', adjustOffcanvasPosition);
+    
+    return () => {
+      window.removeEventListener('resize', adjustOffcanvasPosition);
+    };
+  }, []);
+
   return (
     <>
-      <nav className="navbar navbar-light bg-white sticky-top border-bottom">
+      <nav className={`custom-navbar navbar sticky-top ${darkMode ? 'dark-mode' : ''}`}>
         <div className="container-fluid px-3 px-lg-4">
-          {/* Menu Hamburguer (SEMPRE visível) */}
           <div className="d-flex align-items-center">
             <button 
-              className="navbar-toggler me-2 border-0 p-0" 
+              className="navbar-toggler me-2 border-0 p-0 custom-toggler" 
               type="button" 
               data-bs-toggle="offcanvas" 
               data-bs-target="#offcanvasMenu"
               aria-controls="offcanvasMenu"
-              style={{ fontSize: '2rem' }}
             >
               <span className="navbar-toggler-icon"></span>
             </button>
 
-            {/* Textos empilhados (visível apenas no desktop) */}
             <div className="d-none d-lg-flex flex-column">
-              <div className="fw-bold small">AÇAÍ CENTRAL</div>
-              <div className="small">CAMPINAS - SP</div>
+              <div className="fw-bold small">Opções de Entrega</div>
+              <div className="small">Insira seu endereço</div>
             </div>
           </div>
 
-          {/* Ícone de pesquisa (sempre alinhado à direita) */}
-          <button 
-            className="btn btn-link text-dark p-0 ms-auto"
-            onClick={toggleSearch}
-          >
-            <i className="bi bi-search fs-5"></i>
-          </button>
+          <div className="d-flex align-items-center">
+            <button 
+              className="btn btn-link p-0 ms-3 search-toggle"
+              onClick={toggleSearch}
+            >
+              <i className="bi bi-search fs-5"></i>
+            </button>
+            <button
+              className="btn btn-link p-0 ms-3"
+              onClick={toggleDarkMode}
+            >
+              <i className={`bi ${darkMode ? 'bi-sun' : 'bi-moon'} fs-5`}></i>
+            </button>
+          </div>
         </div>
 
-        {/* Barra de pesquisa expandida */}
         <div className={`search-bar ${searchActive ? 'active' : ''}`}>
           <div className="container-fluid px-3 px-lg-4 py-2">
             <div className="input-group">
@@ -52,7 +86,7 @@ const Navbar = () => {
                 autoFocus
               />
               <button 
-                className="btn btn-link text-dark" 
+                className="btn btn-link search-close"
                 onClick={toggleSearch}
               >
                 <i className="bi bi-x-lg"></i>
@@ -62,9 +96,8 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Off-canvas Menu */}
       <div 
-        className="offcanvas offcanvas-start" 
+        className="offcanvas offcanvas-start custom-offcanvas" 
         tabIndex="-1" 
         id="offcanvasMenu" 
         aria-labelledby="offcanvasMenuLabel"
@@ -81,19 +114,19 @@ const Navbar = () => {
         <div className="offcanvas-body p-0">
           <ul className="nav flex-column">
             <li className="nav-item border-bottom">
-              <a className="nav-link py-3 px-4" href="#">
+              <a className="nav-link py-3 px-4 menu-item" href="#">
                 <i className="bi bi-menu-button-wide me-2"></i>
                 CARDÁPIO
               </a>
             </li>
             <li className="nav-item border-bottom">
-              <a className="nav-link py-3 px-4" href="#">
+              <a className="nav-link py-3 px-4 menu-item" href="#">
                 <i className="bi bi-receipt me-2"></i>
                 MEUS PEDIDOS
               </a>
             </li>
             <li className="nav-item border-bottom">
-              <a className="nav-link py-3 px-4" href="#">
+              <a className="nav-link py-3 px-4 menu-item" href="#">
                 <i className="bi bi-tag me-2"></i>
                 CUPONS
               </a>
@@ -101,34 +134,6 @@ const Navbar = () => {
           </ul>
         </div>
       </div>
-
-      {/* Estilos personalizados */}
-      <style jsx>{`
-        .search-bar {
-          position: absolute;
-          top: -100%;
-          left: 0;
-          right: 0;
-          background: white;
-          z-index: 1020;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          transition: top 0.3s ease;
-        }
-        .search-bar.active {
-          top: 0;
-        }
-        .navbar-toggler {
-          font-size: 1.5rem;
-          padding: 0.25rem;
-        }
-        .offcanvas-start {
-          width: 280px;
-        }
-        .nav-link {
-          display: flex;
-          align-items: center;
-        }
-      `}</style>
     </>
   );
 };
