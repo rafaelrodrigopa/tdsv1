@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './Navbar.css'; // Importação do CSS
+import { MdOutlineKeyboardDoubleArrowDown } from "react-icons/md";
+import AddressSelector from './Modal/Entrega/AddressSelector'; // Importação do componente de seleção de endereço
 
 const Navbar = () => {
   const [searchActive, setSearchActive] = useState(false);
@@ -7,7 +9,6 @@ const Navbar = () => {
   const toggleSearch = () => {
     setSearchActive(!searchActive);
   };
-
 
   return (
     <>
@@ -24,9 +25,11 @@ const Navbar = () => {
               <span className="navbar-toggler-icon"></span>
             </button>
 
-            <div className="d-none d-lg-flex flex-column">
-              <div className="fw-bold small">Opções de Entrega</div>
-              <div className="small">Insira seu endereço</div>
+            {/* Exibir no mobile também */}
+            <div className="d-flex flex-column">
+              <div className="fw-bold small">Opções de Entrega<MdOutlineKeyboardDoubleArrowDown /></div>
+              {/*<div className="small">Insira seu endereço</div>*/}
+              <AddressSelector /> 
             </div>
           </div>
 

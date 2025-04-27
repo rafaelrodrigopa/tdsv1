@@ -156,31 +156,47 @@ const Produto = () => {
         setActiveCategory={setActiveCategory}
         categories={categories}
       />
-
+  
       <div className="mt-3">
-        {Object.entries(productsByCategory).map(([categoryId, { products: categoryProducts, category }]) => (
-          <div 
-            key={categoryId}
-            id={`cat-${categoryId}`}
-            ref={el => categoryRefs.current[categoryId] = el}
-            className="category-section mb-5 pt-2"
-          >
-            <h4 
-              className="mb-4 pb-2 border-bottom"
-              style={{ color: category.color }}
+        <div className="accordion" id="categoriesAccordion">
+          {Object.entries(productsByCategory).map(([categoryId, { products: categoryProducts, category }]) => (
+            <div 
+              key={categoryId}
+              id={`cat-${categoryId}`}
+              ref={el => categoryRefs.current[categoryId] = el}
+              className="accordion-item mb-3 border-0"
             >
-              {category.name}
-            </h4>
-            <div className="row g-4">
-              {categoryProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              <h2 className="accordion-header" id={`heading-${categoryId}`}>
+                <button 
+                  className="accordion-button bg-gradient" 
+                  type="button"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${category.color}15, ${category.color}30)`,
+                    color: category.color,
+                    boxShadow: 'none'
+                  }}
+                >
+                  {category.name}
+                </button>
+              </h2>
+              <div 
+                id={`collapse-${categoryId}`}
+                className="accordion-collapse collapse show"
+                aria-labelledby={`heading-${categoryId}`}
+              >
+                <div className="accordion-body p-0 pt-3">
+                  <div className="row g-4">
+                    {categoryProducts.map(product => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
-};
-
+}
 export default Produto;
