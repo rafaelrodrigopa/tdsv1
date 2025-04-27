@@ -45,7 +45,7 @@ const Categoria = ({ activeCategory, setActiveCategory, categories }) => {
       className="categories-container"
       style={{
         position: 'sticky',
-        top: '56px',
+        top: '58px',
         zIndex: 1020,
         backgroundColor: '#fff',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',

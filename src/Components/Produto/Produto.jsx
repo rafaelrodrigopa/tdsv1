@@ -5,7 +5,7 @@ import { categoryService } from '../../services/firebase_categories';
 import './Produto.css'; // Importação do CSS
 
 const Produto = () => {
-  const [activeCategory, setActiveCategory] = useState('todos');
+  const [activeCategory, setActiveCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,16 +29,15 @@ const Produto = () => {
           throw new Error("Dados não encontrados");
         }
         
-        // Adiciona a categoria "Todos" no início
-        const allCategories = [
-          { id: 'todos', name: 'Todos', color: '#0d6efd' },
-          ...categoriesData.map(cat => ({
-            ...cat,
-            label: cat.name
-          }))
-        ];
+        // Define a primeira categoria como ativa
+        if (categoriesData.length > 0) {
+          setActiveCategory(categoriesData[0].id);
+        }
         
-        setCategories(allCategories);
+        setCategories(categoriesData.map(cat => ({
+          ...cat,
+          label: cat.name
+        })));
         
         // Mapeia os produtos com suas categorias
         const productsWithCategories = productsData.map(product => {
@@ -121,25 +120,20 @@ const Produto = () => {
   // Agrupa produtos por categoria
   const productsByCategory = products.reduce((acc, product) => {
     const categoryId = product.id_categoria || 'outros';
+    
     if (!acc[categoryId]) {
       acc[categoryId] = {
         products: [],
         category: categories.find(c => c.id === categoryId) || { 
-          id: 'outros', 
-          name: 'Outros', 
-          color: '#6c757d' 
+          id: categoryId, 
+          name: product.categoryName || 'Outros', 
+          color: product.categoryColor || '#6c757d' 
         }
       };
     }
     acc[categoryId].products.push(product);
     return acc;
   }, {});
-
-  // Adiciona a categoria "Todos" que contém todos os produtos
-  productsByCategory.todos = {
-    products: [...products],
-    category: { id: 'todos', name: 'Todos', color: '#0d6efd' }
-  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -169,14 +163,12 @@ const Produto = () => {
             ref={el => categoryRefs.current[categoryId] = el}
             className="category-section mb-5 pt-2"
           >
-            {categoryId !== 'todos' && (
-              <h4 
-                className="mb-4 pb-2 border-bottom"
-                style={{ color: category.color }}
-              >
-                {category.name}
-              </h4>
-            )}
+            <h4 
+              className="mb-4 pb-2 border-bottom"
+              style={{ color: category.color }}
+            >
+              {category.name}
+            </h4>
             <div className="row g-4">
               {categoryProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
