@@ -6,6 +6,7 @@ import { getStoreAddress } from '../../../../services/firebase_end'; // Ajuste o
 import ServiceModal from '../ServiceModal/ServiceModal';
 import AddressForm from '../CEP/AddressForm'
 import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
+import AddressDisplay from './AddressDisplay';
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
@@ -113,19 +114,14 @@ const AddressSelector = () => {
         style={{ cursor: 'pointer' }}
         onClick={() => setShowModal(true)}
       >
-        {deliveryOption === 'pickup' ? (
-          <>
-            <div className="fw-bold">Retirar em</div>
-            <div>{storeAddress.street}, {storeAddress.number}</div>
-          </>
-        ) : deliveryOption === 'delivery' && address ? (
-          <>
-            <div className="fw-bold">Entregar em</div>
-            <div>{address.street}, {address.number}</div>
-          </>
-        ) : (
-          'Insira seu endereço'
-        )}
+        
+        <AddressDisplay 
+          deliveryOption={deliveryOption}
+          storeAddress={storeAddress}
+          address={address}
+          onClick={() => setShowModal(true)}
+        />
+
       </div>
 
       {/* Modal principal */}
