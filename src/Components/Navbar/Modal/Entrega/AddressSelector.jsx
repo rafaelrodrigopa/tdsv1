@@ -7,6 +7,7 @@ import ServiceModal from '../ServiceModal/ServiceModal';
 import AddressForm from '../CEP/AddressForm'
 import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
 import AddressDisplay from './AddressDisplay';
+import ServiceOptions from '../ServiceOption/ServiceOptions';
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
@@ -149,7 +150,15 @@ const AddressSelector = () => {
 
           </div>
 
+
           {deliveryOption === 'pickup' && (
+            <ServiceOptions
+              onViewProducts={() => setShowModal(false)}
+              onScheduleService={() => setShowServiceModal(true)}
+            />
+          )}
+
+          {/*{deliveryOption === 'pickup' && (
             <div className="mt-4 text-center">
               <h5>O que você deseja?</h5>
               <div className="d-flex gap-2 justify-content-center mt-3">
@@ -167,7 +176,7 @@ const AddressSelector = () => {
                 </Button>
               </div>
             </div>
-          )}
+          )}*/}
 
           {deliveryOption === 'delivery' && (
                   <AddressForm
