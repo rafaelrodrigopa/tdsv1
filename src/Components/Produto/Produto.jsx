@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Categoria from '../Categoria/Categoria';
 import { productService } from '../../services/firebase_products';
 import { categoryService } from '../../services/firebase_categories';
+import './Produto.css'; // Importação do CSS
 
 const Produto = () => {
   const [activeCategory, setActiveCategory] = useState('todos');
@@ -11,7 +12,9 @@ const Produto = () => {
   const [error, setError] = useState(null);
   const categoryRefs = useRef({});
   const observer = useRef(null);
+  const lastScrollTime = useRef(0);
 
+  // Função para carregar os dados
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,12 +34,24 @@ const Produto = () => {
           { id: 'todos', name: 'Todos', color: '#0d6efd' },
           ...categoriesData.map(cat => ({
             ...cat,
-            label: cat.name // Garante compatibilidade com o componente Categoria
+            label: cat.name
           }))
         ];
         
         setCategories(allCategories);
-        setProducts(productsData);
+        
+        // Mapeia os produtos com suas categorias
+        const productsWithCategories = productsData.map(product => {
+          const productCategory = categoriesData.find(cat => cat.id === product.id_categoria);
+          
+          return {
+            ...product,
+            categoryName: productCategory?.name || 'Sem categoria',
+            categoryColor: productCategory?.color || '#6c757d'
+          };
+        });
+
+        setProducts(productsWithCategories);
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
         setError("Erro ao carregar produtos. Tente novamente mais tarde.");
@@ -48,40 +63,60 @@ const Produto = () => {
     fetchData();
   }, []);
 
+  // Função de fallback para o scroll
+  const handleScroll = useCallback(() => {
+    const now = Date.now();
+    if (now - lastScrollTime.current > 100) {
+      lastScrollTime.current = now;
+      
+      Object.values(categoryRefs.current).forEach(ref => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          const isVisible = rect.top <= 120 && rect.bottom >= 100;
+          if (isVisible) {
+            const categoryId = ref.id.replace('cat-', '');
+            setActiveCategory(prev => prev === categoryId ? prev : categoryId);
+          }
+        }
+      });
+    }
+  }, []);
+
   // Configura o IntersectionObserver
   useEffect(() => {
-    if (categories.length === 0) return;
+    if (categories.length === 0 || products.length === 0) return;
 
     const options = {
       root: null,
-      rootMargin: '0px 0px -80% 0px',
-      threshold: 0.1
+      rootMargin: window.innerWidth < 768 ? '-40% 0px -55% 0px' : '-25% 0px -65% 0px',
+      threshold: window.innerWidth < 768 ? 0.15 : 0.1
     };
 
-    observer.current = new IntersectionObserver((entries) => {
+    const handleIntersection = (entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && entry.intersectionRatio >= options.threshold) {
           const categoryId = entry.target.id.replace('cat-', '');
-          setActiveCategory(prev => {
-            // Mantém "todos" ativo até que outra categoria seja detectada
-            if (prev === 'todos' && categoryId === 'todos') return prev;
-            return categoryId;
-          });
+          setActiveCategory(prev => prev === categoryId ? prev : categoryId);
         }
       });
-    }, options);
+    };
 
-    // Observa todas as seções de categoria
+    observer.current = new IntersectionObserver(handleIntersection, options);
+
     Object.values(categoryRefs.current).forEach(ref => {
       if (ref) observer.current.observe(ref);
     });
+
+    // Adiciona fallback para scroll
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
       if (observer.current) {
         observer.current.disconnect();
       }
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [categories]);
+  }, [categories, products, handleScroll]);
 
   // Agrupa produtos por categoria
   const productsByCategory = products.reduce((acc, product) => {
@@ -132,14 +167,16 @@ const Produto = () => {
             key={categoryId}
             id={`cat-${categoryId}`}
             ref={el => categoryRefs.current[categoryId] = el}
-            className="category-section mb-5"
+            className="category-section mb-5 pt-2"
           >
-            <h4 
-              className="mb-4 pb-2 border-bottom"
-              style={{ color: category.color }}
-            >
-              {category.name}
-            </h4>
+            {categoryId !== 'todos' && (
+              <h4 
+                className="mb-4 pb-2 border-bottom"
+                style={{ color: category.color }}
+              >
+                {category.name}
+              </h4>
+            )}
             <div className="row g-4">
               {categoryProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
