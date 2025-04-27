@@ -1,5 +1,6 @@
 :root {
-  /* Cores personalizáveis */
+  /* Cores personalizáveis - padrão (tema claro) */
+  --navbar-bg-color: #ffffff;
   --navbar-bg-color-azul: #00BFFF;
   --navbar-bg-color-amarelo: #FFEB00;
   --navbar-text-color: #212529;
@@ -10,7 +11,7 @@
   --navbar-menu-bg: #ffffff;
   --navbar-menu-text: #212529;
 
-  /* Cores para tema escuro */
+  /* Cores para tema escuro (opcional) */
   --dark-navbar-bg-color: #2c3e50;
   --dark-navbar-text-color: #ecf0f1;
   --dark-navbar-icon-color: #ecf0f1;
@@ -39,34 +40,50 @@
   
   /* Dimensões */
   --offcanvas-width: 280px;
-  --navbar-height: 60px;
   --shadow-size: 0 2px 4px;
 }
 
-/* Navbar principal */
+/* Aplicando as cores personalizadas */
 .custom-navbar {
-  background: linear-gradient(90deg, var(--navbar-bg-color-azul), var(--navbar-bg-color-amarelo));
+  background: linear-gradient(90deg, var(--navbar-bg-color-azul), var(--navbar-bg-color-amarelo ));
   color: var(--navbar-text-color);
   border-bottom: 1px solid var(--navbar-border-color);
-  min-height: var(--navbar-height);
 }
 
-/* Off-canvas positioning */
+.custom-navbar .search-bar {
+  background-color: var(--navbar-search-bg);
+}
+
 .custom-offcanvas {
-  top: var(--navbar-height) !important;
-  height: calc(100vh - var(--navbar-height)) !important;
-  width: var(--offcanvas-width);
   background-color: var(--navbar-menu-bg);
   color: var(--navbar-menu-text);
-  border-right: 1px solid var(--navbar-border-color);
 }
 
-.offcanvas-backdrop {
-  top: var(--navbar-height) !important;
-  height: calc(100vh - var(--navbar-height)) !important;
+/* Aplicando cores aos textos e ícones */
+.navbar-text,
+.custom-navbar .small,
+.custom-navbar .fw-bold {
+  color: var(--navbar-text-color) !important;
 }
 
-/* Search bar */
+.custom-navbar .btn-link,
+.custom-navbar .bi {
+  color: var(--navbar-icon-color) !important;
+}
+
+/* Tema escuro - ativado via classe no body ou navbar */
+.custom-navbar.dark-mode {
+  --navbar-bg-color: var(--dark-navbar-bg-color);
+  --navbar-text-color: var(--dark-navbar-text-color);
+  --navbar-icon-color: var(--dark-navbar-icon-color);
+  --navbar-border-color: var(--dark-navbar-border-color);
+  --navbar-hover-color: var(--dark-navbar-hover-color);
+  --navbar-search-bg: var(--dark-navbar-search-bg);
+  --navbar-menu-bg: var(--dark-navbar-menu-bg);
+  --navbar-menu-text: var(--dark-navbar-menu-text);
+}
+
+/* Restante do CSS permanece igual com as variáveis */
 .search-bar {
   position: absolute;
   top: -100%;
@@ -79,35 +96,9 @@
 }
 
 .search-bar.active {
-  top: var(--navbar-height);
+  top: 0;
 }
 
-/* Text and icons */
-.custom-navbar .navbar-text,
-.custom-navbar .small,
-.custom-navbar .fw-bold {
-  color: var(--navbar-text-color) !important;
-}
-
-.custom-navbar .btn-link,
-.custom-navbar .bi {
-  color: var(--navbar-icon-color) !important;
-}
-
-/* Menu items */
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: var(--spacing-lg) var(--spacing-md);
-  transition: all var(--transition-fast);
-  color: var(--navbar-menu-text);
-}
-
-.menu-item:hover {
-  background-color: var(--navbar-hover-color);
-}
-
-/* Toggle button */
 .custom-toggler {
   font-size: var(--font-size-lg);
   padding: var(--spacing-xs);
@@ -117,38 +108,74 @@
   box-shadow: none;
 }
 
-/* Focus states */
+.custom-offcanvas {
+  width: var(--offcanvas-width);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  transition: background-color var(--transition-fast);
+  color: var(--navbar-menu-text);
+}
+
+.menu-item:hover {
+  background-color: var(--navbar-hover-color);
+}
+
+.search-toggle:focus,
+.search-close:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.search-close {
+  transition: transform var(--transition-fast);
+}
+
+.search-close:hover {
+  transform: scale(1.1);
+}
+
 [data-bs-toggle="offcanvas"]:focus-visible,
 .menu-item:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
 
-/* Active states */
 .menu-item:active {
   transform: scale(0.98);
 }
-
-/* Dark mode */
-.custom-navbar.dark-mode {
-  --navbar-text-color: var(--dark-navbar-text-color);
-  --navbar-icon-color: var(--dark-navbar-icon-color);
-  --navbar-border-color: var(--dark-navbar-border-color);
-  --navbar-hover-color: var(--dark-navbar-hover-color);
-  --navbar-search-bg: var(--dark-navbar-search-bg);
-  --navbar-menu-bg: var(--dark-navbar-menu-bg);
-  --navbar-menu-text: var(--dark-navbar-menu-text);
-  
-  background: var(--dark-navbar-bg-color);
+/* Ajuste para o off-canvas começar abaixo do navbar */
+.custom-offcanvas {
+  top: 60px; /* Altura do seu navbar */
+  height: calc(100vh - 60px); /* Altura total menos a altura do navbar */
+  width: 280px;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive adjustments */
+/* Garante que o backdrop cubra apenas a área abaixo do navbar */
+.offcanvas-backdrop {
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+/* Ajuste para o header do offcanvas */
+.custom-offcanvas .offcanvas-header {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Se o navbar for responsivo, adicione media queries */
 @media (max-width: 991.98px) {
-  :root {
-    --navbar-height: 56px;
+  .custom-offcanvas {
+    top: 56px; /* Altura menor em mobile se necessário */
+    height: calc(100vh - 56px);
   }
   
-  .custom-offcanvas {
-    width: 75%;
+  .offcanvas-backdrop {
+    top: 56px;
+    height: calc(100vh - 56px);
   }
 }

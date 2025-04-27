@@ -82,7 +82,7 @@ const HeroSection = () => {
 
 <div className="container position-relative d-flex flex-column align-items-center justify-content-center h-100 text-center" style={{ zIndex: 2 }}>
   <div className="hero-text text-white">
-    <img src={imgLogoCharada} alt="Charada Motos" style={{width: '180px'}} />
+    <img src={imgLogoCharada} alt="Charada Motos" style={{width: '140px'}} />
     <h1 className="h3 fw-bold mb-2">CHARADA MOTOS</h1>
 
     <div className="mb-2" style={{ fontSize: '0.9rem' }}>

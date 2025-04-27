@@ -1,47 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import './Navbar.css';
+import React, { useState } from 'react';
+import './Navbar.css'; // Importação do CSS
 
 const Navbar = () => {
   const [searchActive, setSearchActive] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
 
   const toggleSearch = () => {
     setSearchActive(!searchActive);
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  useEffect(() => {
-    const adjustOffcanvasPosition = () => {
-      const navbar = document.querySelector('.custom-navbar');
-      const offcanvas = document.querySelector('.custom-offcanvas');
-      const backdrop = document.querySelector('.offcanvas-backdrop');
-      
-      if (navbar && offcanvas) {
-        const navbarHeight = navbar.offsetHeight;
-        offcanvas.style.top = `${navbarHeight}px`;
-        offcanvas.style.height = `calc(100vh - ${navbarHeight}px)`;
-        
-        if (backdrop) {
-          backdrop.style.top = `${navbarHeight}px`;
-          backdrop.style.height = `calc(100vh - ${navbarHeight}px)`;
-        }
-      }
-    };
-
-    adjustOffcanvasPosition();
-    window.addEventListener('resize', adjustOffcanvasPosition);
-    
-    return () => {
-      window.removeEventListener('resize', adjustOffcanvasPosition);
-    };
-  }, []);
 
   return (
     <>
-      <nav className={`custom-navbar navbar sticky-top ${darkMode ? 'dark-mode' : ''}`}>
+      <nav className="navbar navbar-light bg-white sticky-top border-bottom custom-navbar">
         <div className="container-fluid px-3 px-lg-4">
           <div className="d-flex align-items-center">
             <button 
@@ -60,20 +30,12 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="d-flex align-items-center">
-            <button 
-              className="btn btn-link p-0 ms-3 search-toggle"
-              onClick={toggleSearch}
-            >
-              <i className="bi bi-search fs-5"></i>
-            </button>
-            <button
-              className="btn btn-link p-0 ms-3"
-              onClick={toggleDarkMode}
-            >
-              <i className={`bi ${darkMode ? 'bi-sun' : 'bi-moon'} fs-5`}></i>
-            </button>
-          </div>
+          <button 
+            className="btn btn-link text-dark p-0 ms-auto search-toggle"
+            onClick={toggleSearch}
+          >
+            <i className="bi bi-search fs-5"></i>
+          </button>
         </div>
 
         <div className={`search-bar ${searchActive ? 'active' : ''}`}>
@@ -86,7 +48,7 @@ const Navbar = () => {
                 autoFocus
               />
               <button 
-                className="btn btn-link search-close"
+                className="btn btn-link text-dark search-close"
                 onClick={toggleSearch}
               >
                 <i className="bi bi-x-lg"></i>
