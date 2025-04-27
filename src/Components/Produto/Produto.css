@@ -1,0 +1,45 @@
+/* Estilo para o menu de categorias scrollável */
+.scrollable-categories {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch; /* Suave scroll no iOS */
+    scrollbar-width: none; /* Esconde a barra no Firefox */
+  }
+  
+  .scrollable-categories::-webkit-scrollbar {
+    display: none; /* Esconde a barra no Chrome/Safari */
+  }
+  
+  /* Estilo para os produtos agrupados por categoria */
+  .category-section {
+    scroll-margin-top: 100px; /* Espaço para o menu fixo */
+  }
+
+  /* Esconde a barra de scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ajusta o scroll para o menu sticky */
+.category-section {
+  scroll-margin-top: 100px;
+}
+
+/* Melhora a visualização dos cards */
+.card {
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-img-top {
+  background-color: #f8f9fa;
+  padding: 20px;
+}

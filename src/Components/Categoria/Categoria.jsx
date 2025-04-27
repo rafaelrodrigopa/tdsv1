@@ -1,83 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import { categoryService } from '../../services/firebase_categories';
+import React, { useEffect, useRef } from 'react';
 
-const Categoria = ({ activeTab, setActiveTab }) => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Categoria = ({ activeCategory, setActiveCategory, categories }) => {
+  const menuRef = useRef(null);
+  const menuContainerRef = useRef(null);
 
+  // Rola o menu para deixar a categoria ativa visível
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        const categoriesData = await categoryService.getCategories();
+    if (menuRef.current && activeCategory) {
+      const menu = menuRef.current;
+      const activeButton = menu.querySelector(`[data-category="${activeCategory}"]`);
+      
+      if (activeButton) {
+        const menuRect = menu.getBoundingClientRect();
+        const buttonRect = activeButton.getBoundingClientRect();
         
-        // Create the categories array with the "Todos" option first
-        const formattedCategories = [
-          //{ id: 'todos', label: 'Todos', color: '#0d6efd' }, // Default blue color for "Todos"
-          ...categoriesData.map(cat => ({
-            id: cat.id,
-            label: cat.name,
-            color: cat.color || '#6c757d' // Fallback to gray if no color specified
-          }))
-        ];
+        const scrollTo = activeButton.offsetLeft - (menuRect.width / 2) + (buttonRect.width / 2);
         
-        setCategories(formattedCategories);
-      } catch (err) {
-        console.error("Erro ao carregar categorias:", err);
-        setError("Erro ao carregar categorias");
-      } finally {
-        setLoading(false);
+        menu.scrollTo({
+          left: scrollTo,
+          behavior: 'smooth'
+        });
       }
-    };
-
-    fetchCategories();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="mb-4 text-center">
-        <div className="btn-group" role="group">
-          {[...Array(4)].map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              className="btn btn-outline-primary placeholder"
-              style={{ width: '100px' }}
-              disabled
-            >
-              &nbsp;
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mb-4 text-center text-danger">
-        {error}
-      </div>
-    );
-  }
+    }
+  }, [activeCategory]);
 
   return (
-    <div className="mb-4 text-center">
-      <div className="btn-group" role="group">
+    <div 
+      ref={menuContainerRef}
+      className="categories-container"
+      style={{
+        position: 'sticky',
+        top: '58px', // Altura da navbar (ajuste conforme necessário)
+        zIndex: 1020,
+        backgroundColor: '#fff',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        padding: '0.5rem 0',
+        width: '100%',
+      }}
+    >
+      <div 
+        ref={menuRef}
+        className="d-flex overflow-auto hide-scrollbar px-2"
+      >
         {categories.map((cat) => (
           <button
             key={cat.id}
+            data-category={cat.id}
             type="button"
-            className={`btn btn-outline-primary ${activeTab === cat.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(cat.id)}
+            className={`btn btn-outline-primary rounded-pill mx-1 flex-shrink-0 ${
+              activeCategory === cat.id ? 'active' : ''
+            }`}
+            onClick={() => {
+              setActiveCategory(cat.id);
+              const element = document.getElementById(`cat-${cat.id}`);
+              if (element) {
+                const offset = 120; // Ajuste fino para posicionamento
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = element.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth'
+                });
+              }
+            }}
             style={{
               borderColor: cat.color,
-              color: activeTab === cat.id ? '#fff' : cat.color,
-              backgroundColor: activeTab === cat.id ? cat.color : 'transparent'
+              color: activeCategory === cat.id ? '#fff' : cat.color,
+              backgroundColor: activeCategory === cat.id ? cat.color : 'transparent',
+              padding: '0.375rem 1rem'
             }}
           >
-            {cat.label}
+            {cat.name || cat.label}
           </button>
         ))}
       </div>
