@@ -1,86 +1,90 @@
-// src/utils/deliveryCalculator.js
+/**
+ * Serviço de cálculo de distância e frete
+ */
+
+// Configurações
+const GOOGLE_GEOCODING_API_KEY = 'AIzaSyBWUcuzeJzgiC7klXcmixIQ9sRuMARlLAc';
+const GOOGLE_GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+// Coordenadas FIXAS da loja (Francisco Morato)
+const STORE_COORDINATES = {
+  lat: -23.2720601,  // Latitude da loja
+  lon: -46.7330031,  // Longitude da loja
+  address: "Estrada Arcílio Federzoni, 971, Jardim Silvia, Francisco Morato - SP"
+};
 
 /**
  * Calcula distância aproximada entre dois pontos (fórmula de Haversine)
- * @param {number} lat1 - Latitude do ponto 1 (loja)
- * @param {number} lon1 - Longitude do ponto 1 (loja)
- * @param {number} lat2 - Latitude do ponto 2 (cliente)
- * @param {number} lon2 - Longitude do ponto 2 (cliente)
- * @returns {number} Distância em quilômetros
+ * @returns {Object} Retorna a distância em km e os detalhes das coordenadas
  */
-// Adicione esta função no arquivo deliveryCalculator.js:
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Raio da Terra em km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c; // Distância em km
-  };
+  const R = 6371; // Raio da Terra em km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c;
   
-  /**
-   * Calcula valor do frete conforme regras:
-   * - R$0,90 por km para distâncias >= 1km
-   * - Taxa fixa de R$3,50 para distâncias < 1km
-   * @param {number} km - Distância em quilômetros
-   * @returns {number} Valor do frete em reais
-   */
-  export const calculateDeliveryFee = (km) => {
-    return km >= 1 ? km * 0.9 : 3.5;
+  return {
+    distance: distance,
+    origin: { lat: lat1, lon: lon1 },
+    destination: { lat: lat2, lon: lon2 }
   };
-  
-  /**
-   * Obtém coordenadas geográficas a partir de um endereço (usando API Nominatim)
-   * @param {string} address - Endereço completo
-   * @returns {Promise<{lat: number, lon: number}>} Coordenadas
-   */
-// src/utils/deliveryCalculator.js
-// deliveryCalculator.js
+};
+
+/**
+ * Calcula valor do frete conforme novas regras
+ */
+export const calculateDeliveryFee = (km) => {
+  if (km < 1) {
+    return 3.5;
+  } else if (km < 3) {
+    return 5;
+  } else {
+    return km * 0.9;
+  }
+};
+
+/**
+ * Obtém coordenadas usando Google Maps Geocoding API
+ * @returns {Object} Coordenadas e endereço formatado
+ */
 export const getCoordinates = async (address) => {
-    try {
-      // 1. Tentativa com Nominatim
-      const nominatimResponse = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&countrycodes=br`,
-        {
-          headers: {
-            'User-Agent': 'SeuApp/1.0 (seu@email.com)' // 👈 Substitua com seus dados
-          }
-        }
-      );
-      
-      const nominatimData = await nominatimResponse.json();
-      
-      if (nominatimData.length > 0) {
-        return {
-          lat: parseFloat(nominatimData[0].lat),
-          lon: parseFloat(nominatimData[0].lon),
-          source: 'nominatim'
-        };
-      }
-  
-      // 2. Fallback para teste (substitua pelas coordenadas da sua loja)
-      const FALLBACK_COORDINATES = {
-        'Rua do Acre, 231, Parque Cento e Vinte, Francisco Morato, SP, Brasil': {
-          lat: -23.1937,
-          lon: -46.5331,
-          source: 'fallback'
-        }
-      };
-  
-      if (FALLBACK_COORDINATES[address]) {
-        return FALLBACK_COORDINATES[address];
-      }
-  
-      throw new Error('Endereço não encontrado em nenhum serviço');
-  
-    } catch (err) { // 👈 Corrigido para usar 'err' ao invés de 'error'
-      console.error('Erro detalhado na geocodificação:', {
-        address,
-        error: err // 👈 Objeto de erro corretamente definido
-      });
-      throw new Error(`Falha ao geocodificar: ${err.message}`);
+  try {
+    const response = await fetch(
+      `${GOOGLE_GEOCODING_URL}?address=${encodeURIComponent(address)}&key=${GOOGLE_GEOCODING_API_KEY}&region=br`
+    );
+
+    const data = await response.json();
+
+    if (data.status !== 'OK') {
+      throw new Error(data.error_message || 'Erro na API de geocodificação');
     }
-  };
+
+    const location = data.results[0].geometry.location;
+    return {
+      lat: location.lat,
+      lon: location.lng,
+      display: data.results[0].formatted_address,
+      source: 'Google Maps',
+      fullResult: data.results[0] // Para debug
+    };
+
+  } catch (err) {
+    console.error('Erro na geocodificação:', {
+      input: address,
+      error: err.message
+    });
+    throw new Error('Não foi possível calcular a localização. Verifique o endereço');
+  }
+};
+
+/**
+ * Obtém as coordenadas da loja
+ */
+export const getStoreCoordinates = () => {
+  return STORE_COORDINATES;
+};

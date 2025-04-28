@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Accordion, Form } from 'react-bootstrap';
-import { FaCheckCircle, FaMotorcycle, FaStore } from 'react-icons/fa';
+import { Modal, Button, Alert } from 'react-bootstrap';
+import { FaCheckCircle, FaMotorcycle, FaStore, FaMapMarkerAlt } from 'react-icons/fa';
 import axios from 'axios';
-import { getStoreAddress } from '../../../../services/firebase_end'; // Ajuste o caminho conforme sua estrutura
+import { getStoreAddress } from '../../../../services/firebase_end';
 import ServiceModal from '../ServiceModal/ServiceModal';
-import AddressForm from '../CEP/AddressForm'
+import AddressForm from '../CEP/AddressForm';
 import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
 import AddressDisplay from './AddressDisplay';
 import ServiceOptions from '../ServiceOption/ServiceOptions';
 import AddressLoader from '../Loader/AddressLoader';
-import { calculateDeliveryFee, getCoordinates,calculateDistance } from '../../CalculoFrete/deliveryCalculator'; // Ajuste o caminho conforme sua estrutura
-
+import { 
+  getCoordinates, 
+  calculateDistance, 
+  calculateDeliveryFee,
+  getStoreCoordinates
+} from '../../CalculoFrete/deliveryCalculator';
 
 const AddressSelector = () => {
-  
   const [showModal, setShowModal] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState(null);
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [error, setError] = useState(null);
-
   const [cep, setCep] = useState('');
   const [address, setAddress] = useState({
     street: '',
@@ -31,14 +33,8 @@ const AddressSelector = () => {
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [storeAddress, setStoreAddress] = useState(null);
   const [loadingStoreAddress, setLoadingStoreAddress] = useState(true);
-  const [clientData, setClientData] = useState({
-    name: '',
-    phone: '',
-    bikeModel: '',
-    plate: ''
-  });
+  const [calculationDetails, setCalculationDetails] = useState(null);
 
-  // Busca o endereço da loja ao carregar o componente
   useEffect(() => {
     const loadStoreAddress = async () => {
       try {
@@ -46,19 +42,17 @@ const AddressSelector = () => {
         setStoreAddress(addressData);
       } catch (error) {
         console.error('Erro ao carregar endereço:', error);
-        // Define um endereço padrão em caso de erro
         setStoreAddress({
-          street: 'Rua da Loja',
-          number: '123',
-          neighborhood: 'Centro',
-          city: 'Cidade Padrão',
+          street: 'Estrada Arcílio Federzoni',
+          number: '971',
+          neighborhood: 'Jardim Silvia',
+          city: 'Francisco Morato',
           state: 'SP'
         });
       } finally {
         setLoadingStoreAddress(false);
       }
     };
-
     loadStoreAddress();
   }, []);
 
@@ -75,7 +69,6 @@ const AddressSelector = () => {
       });
     } catch (error) {
       alert('CEP não encontrado ou erro na busca');
-      // Mantém os campos vazios em caso de erro
       setAddress({
         street: '',
         number: '',
@@ -98,86 +91,82 @@ const AddressSelector = () => {
   };
 
   const handleContinue = async () => {
-    setError(null); // Reseta erros anteriores
-    setDeliveryFee(null); // Reseta o frete
+    setError(null);
+    setDeliveryFee(null);
+    setCalculationDetails(null);
     
     try {
-      // 1. Validação básica do endereço
-      if (!address.street || !address.number || !address.city) {
-        throw new Error('Preencha todos os campos obrigatórios do endereço');
+      // Validação básica
+      if (!address.street || !address.number || !address.city || !address.state) {
+        throw new Error('Preencha todos os campos obrigatórios');
       }
-  
-      // 2. Coordenadas FIXAS da loja (substitua pelas suas coordenadas reais)
-      const storeCoords = { 
-        lat: -23.5505,  // Exemplo: São Paulo
-        lon: -46.6333,
-        name: "Sua Loja" // Adicione um identificador
-      };
-  
-      // 3. Formatação do endereço do cliente
+
+      // Monta o endereço completo
       const fullAddress = [
         `${address.street}, ${address.number}`,
         address.complement,
         address.neighborhood,
-        address.city,
-        address.state,
+        `${address.city}, ${address.state}`,
         'Brasil'
       ].filter(Boolean).join(', ');
-  
-      console.log('Buscando coordenadas para:', fullAddress); // Debug
+
+      // Obtém coordenadas da loja
+      const storeCoords = getStoreCoordinates();
       
-      // 4. Geocodificação
+      // Obtém coordenadas do cliente
       const clientCoords = await getCoordinates(fullAddress);
       
-      // 5. Validação das coordenadas
-      if (!clientCoords?.lat || !clientCoords?.lon) {
-        throw new Error('Não foi possível determinar a localização exata do endereço');
-      }
-  
-      console.log('Coordenadas encontradas:', clientCoords); // Debug
-      
-      // 6. Cálculo da distância
-      const distance = calculateDistance(
+      // Calcula distância com detalhes
+      const distanceResult = calculateDistance(
         storeCoords.lat,
         storeCoords.lon,
         clientCoords.lat,
         clientCoords.lon
       );
       
-      console.log('Distância calculada (km):', distance); // Debug
-      
-      // 7. Cálculo do frete (R$0,90/km ou R$3,50 para <1km)
-      const fee = distance >= 1 ? distance * 0.9 : 3.5;
-      setDeliveryFee(fee.toFixed(2));
-      
-      // 8. Fecha o modal
-      setShowModal(false);
-  
-    } catch (err) {
-      // Tratamento de erros
-      setError(err.message);
-      console.error('Erro no cálculo de frete:', {
-        error: err,
-        endereço: address,
-        cep,
-        timestamp: new Date().toISOString()
+      // Armazena detalhes do cálculo
+      setCalculationDetails({
+        origin: storeCoords,
+        destination: clientCoords,
+        distance: distanceResult.distance,
+        clientAddress: clientCoords.display
       });
       
-      // Opcional: Fornecer frete padrão em caso de erro
-      setDeliveryFee('10.00'); // Valor fallback
+      // Calcula frete
+      const fee = calculateDeliveryFee(distanceResult.distance);
+      setDeliveryFee(fee.toFixed(2));
+      setShowModal(false);
+
+    } catch (err) {
+      setError(err.message);
+      console.error('Erro no cálculo:', {
+        error: err,
+        address: address
+      });
     }
   };
 
-
   return (
-
-    
     <>
-    {error && (
+      {error && (
         <Alert variant="danger" onClose={() => setError(null)} dismissible>
           {error}
         </Alert>
       )}
+      
+      {/*{calculationDetails && (
+        <Alert variant="info" className="mt-2">
+          <div className="d-flex align-items-center">
+            <FaMapMarkerAlt className="me-2" />
+            <div>
+              <strong>Origem:</strong> {getStoreCoordinates().address}<br />
+              <strong>Destino:</strong> {calculationDetails.clientAddress}<br />
+              <strong>Distância calculada:</strong> {calculationDetails.distance.toFixed(2)} km
+            </div>
+          </div>
+        </Alert>
+      )}*/}
+      
       <div 
         className="small text-primary" 
         style={{ cursor: 'pointer' }}
@@ -191,36 +180,33 @@ const AddressSelector = () => {
           deliveryOption={deliveryOption}
           storeAddress={storeAddress}
           address={address}
+          deliveryFee={deliveryFee}
           onClick={() => setShowModal(true)}
         />
 
-      <Button
-        variant={deliveryOption === 'delivery' ? 'success' : 'outline-secondary'}
-        onClick={() => handleDeliverySelection('delivery')}
-        className="text-start p-3"
-      >
-        <div className="d-flex align-items-center">
-          {deliveryOption === 'delivery' && <FaCheckCircle className="me-2" />}
-          <FaMotorcycle className="me-3" size={24} />
-          <div>
-            <h5 className="mb-1">Entregar no meu endereço</h5>
-            <small className="text-muted">
-              {deliveryFee ? `Frete: R$${deliveryFee}` : 'Frete calculado conforme localização'}
-            </small>
+        {/*<Button
+          variant={deliveryOption === 'delivery' ? 'success' : 'outline-secondary'}
+          onClick={() => handleDeliverySelection('delivery')}
+          className="text-start p-3"
+        >
+          <div className="d-flex align-items-center">
+            {deliveryOption === 'delivery' && <FaCheckCircle className="me-2" />}
+            <FaMotorcycle className="me-3" size={24} />
+            <div>
+              <h5 className="mb-1">Entregar no meu endereço</h5>
+              <small className="text-muted">
+                {deliveryFee ? `Frete: R$${deliveryFee}` : 'Frete calculado conforme localização'}
+              </small>
+            </div>
           </div>
-        </div>
-      </Button>
-
+        </Button>*/}
       </div>
 
-      {/* Modal principal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>O que vai ser hoje? Produto ou Serviço?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="d-grid gap-3">
-            
           <div className="d-grid gap-3">
             <DeliveryOptionButton
               option="pickup"
@@ -234,34 +220,29 @@ const AddressSelector = () => {
               onSelect={handleDeliverySelection}
               storeAddress={storeAddress}
             />
+
+            {deliveryOption === 'pickup' && (
+              <ServiceOptions
+                onViewProducts={() => setShowModal(false)}
+                onScheduleService={() => setShowServiceModal(true)}
+              />
+            )}
+
+            {deliveryOption === 'delivery' && (
+              <AddressForm
+                cep={cep}
+                address={address}
+                onCepChange={(value) => setCep(value)}
+                onCepSearch={handleCepSearch}
+                onAddressChange={(field, value) => 
+                  setAddress(prev => ({ ...prev, [field]: value }))
+                }
+              />
+            )}
           </div>
-
-          </div>
-
-
-          {deliveryOption === 'pickup' && (
-            <ServiceOptions
-              onViewProducts={() => setShowModal(false)}
-              onScheduleService={() => setShowServiceModal(true)}
-            />
-          )}
-
-          {deliveryOption === 'delivery' && (
-                  <AddressForm
-                    cep={cep}
-                    address={address}
-                    onCepChange={(value) => setCep(value)}
-                    onCepSearch={handleCepSearch}
-                    onAddressChange={(field, value) => 
-                      setAddress(prev => ({ ...prev, [field]: value }))
-                    }
-                  />
-                )}
-          
-          
         </Modal.Body>
         <Modal.Footer>
-          {deliveryOption === 'delivery' && address && (
+          {deliveryOption === 'delivery' && address.street && (
             <Button variant="primary" onClick={handleContinue}>
               Continuar
             </Button>
@@ -269,12 +250,10 @@ const AddressSelector = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal de agendamento de serviço */}
       <ServiceModal
         show={showServiceModal}
         onHide={() => setShowServiceModal(false)}
         onSubmit={(data) => {
-          // Lógica original de submissão
           console.log('Dados do agendamento:', data);
           setShowServiceModal(false);
           setShowModal(false);

@@ -1,40 +1,26 @@
 import React from 'react';
 import { FaStore, FaMotorcycle } from 'react-icons/fa';
 
-/**
- * Componente AddressDisplay - Exibe o endereço selecionado (retirada/entrega)
- * 
- * Responsabilidades:
- * - Mostrar "Retirar em" ou "Entregar em" com o endereço correspondente
- * - Exibir ícone correspondente à opção selecionada
- * - Manter o mesmo estilo e comportamento do original
- * 
- * Props:
- * - deliveryOption (string): 'pickup' ou 'delivery'
- * - storeAddress (object): { street, number } (para retirada)
- * - address (object): { street, number } (para entrega)
- */
-const AddressDisplay = ({ deliveryOption, storeAddress, address }) => {
+const AddressDisplay = ({ deliveryOption, storeAddress, address, deliveryFee }) => {
   return (
     <div className="small text-primary" style={{ cursor: 'pointer' }}>
-      {deliveryOption === 'pickup' ? (
-        <>
-          <div className="fw-bold">Retirar em</div>
-          <div>
-            <FaStore className="me-1" />
-            {storeAddress.street}, {storeAddress.number}
-          </div>
-        </>
+      {deliveryOption === 'pickup' && storeAddress ? (
+        <div key="pickup">
+          <FaStore className="me-1" />
+          <span className="fw-bold">Retirar em: </span> {storeAddress.street}, {storeAddress.number}
+        </div>
       ) : deliveryOption === 'delivery' && address ? (
-        <>
-          <div className="fw-bold">Entregar em</div>
-          <div>
-            <FaMotorcycle className="me-1" />
-            {address.street}, {address.number}
-          </div>
-        </>
+        <div key="delivery">
+          <FaMotorcycle className="me-1" />
+          <span className="fw-bold">Entregar em: </span> {address.street}, {address.number}
+          {deliveryFee && (
+            <span className="text-muted">
+              {' '}(Frete: R${deliveryFee})
+            </span>
+          )}
+        </div>
       ) : (
-        'Insira seu endereço'
+        <div key="empty">Insira seu endereço</div>
       )}
     </div>
   );
