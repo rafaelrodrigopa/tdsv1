@@ -8,6 +8,7 @@ import AddressForm from '../CEP/AddressForm'
 import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
 import AddressDisplay from './AddressDisplay';
 import ServiceOptions from '../ServiceOption/ServiceOptions';
+import AddressLoader from '../Loader/AddressLoader';
 
 const AddressSelector = () => {
   const [showModal, setShowModal] = useState(false);
@@ -103,10 +104,10 @@ const AddressSelector = () => {
     return <div className="text-center my-3">Carregando endereço da loja...</div>;
   }
 
-
-  if (!storeAddress) {
-    return <div className="text-center my-3 text-danger">Não foi possível carregar o endereço da loja</div>;
-  }
+  <AddressLoader 
+    loading={loadingStoreAddress} 
+    error={!storeAddress} 
+  />
 
   return (
     <>
@@ -157,26 +158,6 @@ const AddressSelector = () => {
               onScheduleService={() => setShowServiceModal(true)}
             />
           )}
-
-          {/*{deliveryOption === 'pickup' && (
-            <div className="mt-4 text-center">
-              <h5>O que você deseja?</h5>
-              <div className="d-flex gap-2 justify-content-center mt-3">
-                <Button 
-                  variant="primary"
-                  onClick={() => setShowModal(false)}
-                >
-                  Ver Produtos
-                </Button>
-                <Button 
-                  variant="outline-primary"
-                  onClick={() => setShowServiceModal(true)}
-                >
-                  Agendar Serviço
-                </Button>
-              </div>
-            </div>
-          )}*/}
 
           {deliveryOption === 'delivery' && (
                   <AddressForm
