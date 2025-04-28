@@ -45,6 +45,7 @@
 
 /* Aplicando as cores personalizadas */
 .custom-navbar {
+  height: 75px;
   background: linear-gradient(90deg, var(--navbar-bg-color-azul), var(--navbar-bg-color-amarelo ));
   color: var(--navbar-text-color);
   border-bottom: 1px solid var(--navbar-border-color);

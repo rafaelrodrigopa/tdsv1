@@ -12,9 +12,9 @@ const AddressDisplay = ({ deliveryOption, storeAddress, address, deliveryFee }) 
       ) : deliveryOption === 'delivery' && address ? (
         <div key="delivery">
           <FaMotorcycle className="me-1" />
-          <span className="fw-bold">Entregar em: </span> {address.street}, {address.number}
+          <span className="fw-bold">Entregar em: <br /></span > <span style={{fontSize: '0.9rem', fontWeight: 'bold'}}>{address.street}, {address.number}</span>
           {deliveryFee && (
-            <span className="text-muted">
+            <span className="text-muted" style={{ fontSize: '1rem' }}>
               {' '}(Frete: R${deliveryFee})
             </span>
           )}

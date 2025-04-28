@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Navbar.css'; // Importação do CSS
 import { MdOutlineKeyboardDoubleArrowDown } from "react-icons/md";
 import AddressSelector from './Modal/Entrega/AddressSelector'; // Importação do componente de seleção de endereço
 
 const Navbar = () => {
   const [searchActive, setSearchActive] = useState(false);
+  const searchInputRef = useRef(null);
 
   const toggleSearch = () => {
     setSearchActive(!searchActive);
   };
+
+  // Efeito para focar no input quando a busca é ativada
+  useEffect(() => {
+    if (searchActive && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchActive]);
 
   return (
     <>
@@ -41,18 +49,22 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className={`search-bar ${searchActive ? 'active' : ''}`}>
+        <div className={`search-bar ${searchActive ? 'active' : ''}`}
+          style={{ height: '75px'}}
+        >
           <div className="container-fluid px-3 px-lg-4 py-2">
             <div className="input-group">
-              <input 
+            <input
+                ref={searchInputRef}
                 type="text" 
                 className="form-control border-0 shadow-none" 
-                placeholder="Pesquisar no cardápio..." 
-                autoFocus
+                placeholder="Pesquisar no cardápio..."
+                style={{ marginTop: '0.6rem' }}
               />
               <button 
                 className="btn btn-link text-dark search-close"
                 onClick={toggleSearch}
+                style={{ marginTop: '0.6rem'}}
               >
                 <i className="bi bi-x-lg"></i>
               </button>
