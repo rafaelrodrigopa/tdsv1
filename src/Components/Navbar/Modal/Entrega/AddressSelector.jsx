@@ -9,10 +9,16 @@ import DeliveryOptionButton from '../OptionButton/DeliveryOptionButton';
 import AddressDisplay from './AddressDisplay';
 import ServiceOptions from '../ServiceOption/ServiceOptions';
 import AddressLoader from '../Loader/AddressLoader';
+import { calculateDeliveryFee, getCoordinates,calculateDistance } from '../../CalculoFrete/deliveryCalculator'; // Ajuste o caminho conforme sua estrutura
+
 
 const AddressSelector = () => {
+  
   const [showModal, setShowModal] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState(null);
+  const [deliveryFee, setDeliveryFee] = useState(null);
+  const [error, setError] = useState(null);
+
   const [cep, setCep] = useState('');
   const [address, setAddress] = useState({
     street: '',
@@ -91,38 +97,119 @@ const AddressSelector = () => {
     }
   };
 
-  const handleContinue = () => {
-    if (deliveryOption === 'pickup') {
+  const handleContinue = async () => {
+    setError(null); // Reseta erros anteriores
+    setDeliveryFee(null); // Reseta o frete
+    
+    try {
+      // 1. Validação básica do endereço
+      if (!address.street || !address.number || !address.city) {
+        throw new Error('Preencha todos os campos obrigatórios do endereço');
+      }
+  
+      // 2. Coordenadas FIXAS da loja (substitua pelas suas coordenadas reais)
+      const storeCoords = { 
+        lat: -23.5505,  // Exemplo: São Paulo
+        lon: -46.6333,
+        name: "Sua Loja" // Adicione um identificador
+      };
+  
+      // 3. Formatação do endereço do cliente
+      const fullAddress = [
+        `${address.street}, ${address.number}`,
+        address.complement,
+        address.neighborhood,
+        address.city,
+        address.state,
+        'Brasil'
+      ].filter(Boolean).join(', ');
+  
+      console.log('Buscando coordenadas para:', fullAddress); // Debug
+      
+      // 4. Geocodificação
+      const clientCoords = await getCoordinates(fullAddress);
+      
+      // 5. Validação das coordenadas
+      if (!clientCoords?.lat || !clientCoords?.lon) {
+        throw new Error('Não foi possível determinar a localização exata do endereço');
+      }
+  
+      console.log('Coordenadas encontradas:', clientCoords); // Debug
+      
+      // 6. Cálculo da distância
+      const distance = calculateDistance(
+        storeCoords.lat,
+        storeCoords.lon,
+        clientCoords.lat,
+        clientCoords.lon
+      );
+      
+      console.log('Distância calculada (km):', distance); // Debug
+      
+      // 7. Cálculo do frete (R$0,90/km ou R$3,50 para <1km)
+      const fee = distance >= 1 ? distance * 0.9 : 3.5;
+      setDeliveryFee(fee.toFixed(2));
+      
+      // 8. Fecha o modal
       setShowModal(false);
-    } else if (deliveryOption === 'delivery' && address) {
-      setShowModal(false);
+  
+    } catch (err) {
+      // Tratamento de erros
+      setError(err.message);
+      console.error('Erro no cálculo de frete:', {
+        error: err,
+        endereço: address,
+        cep,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Opcional: Fornecer frete padrão em caso de erro
+      setDeliveryFee('10.00'); // Valor fallback
     }
   };
 
 
-  if (loadingStoreAddress) {
-    return <div className="text-center my-3">Carregando endereço da loja...</div>;
-  }
-
-  <AddressLoader 
-    loading={loadingStoreAddress} 
-    error={!storeAddress} 
-  />
-
   return (
+
+    
     <>
+    {error && (
+        <Alert variant="danger" onClose={() => setError(null)} dismissible>
+          {error}
+        </Alert>
+      )}
       <div 
         className="small text-primary" 
         style={{ cursor: 'pointer' }}
         onClick={() => setShowModal(true)}
       >
-        
+        <AddressLoader 
+          loading={loadingStoreAddress} 
+          error={!storeAddress} 
+        />
         <AddressDisplay 
           deliveryOption={deliveryOption}
           storeAddress={storeAddress}
           address={address}
           onClick={() => setShowModal(true)}
         />
+
+      <Button
+        variant={deliveryOption === 'delivery' ? 'success' : 'outline-secondary'}
+        onClick={() => handleDeliverySelection('delivery')}
+        className="text-start p-3"
+      >
+        <div className="d-flex align-items-center">
+          {deliveryOption === 'delivery' && <FaCheckCircle className="me-2" />}
+          <FaMotorcycle className="me-3" size={24} />
+          <div>
+            <h5 className="mb-1">Entregar no meu endereço</h5>
+            <small className="text-muted">
+              {deliveryFee ? `Frete: R$${deliveryFee}` : 'Frete calculado conforme localização'}
+            </small>
+          </div>
+        </div>
+      </Button>
 
       </div>
 
