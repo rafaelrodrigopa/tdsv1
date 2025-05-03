@@ -1,50 +1,22 @@
-/* Estilos para o Product Card */
-.product-card {
-    transition: all 0.3s ease;
-    border-radius: 12px !important;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* Adicionar no seu arquivo CSS */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.fill-current {
+  fill: currentColor;
+}
+
+/* Animação de entrada suave */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
   }
-  
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  to {
+    transform: translateY(0);
   }
-  
-  .product-image-container {
-    height: 200px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  
-  .product-image {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
-  
-  .product-card:hover .product-image {
-    transform: scale(1.05);
-  }
-  
-  .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%);
-  }
-  
-  .fill-current {
-    fill: currentColor;
-  }
-  
-  /* Estrelas de avaliação */
-  .text-warning .fill-current {
-    fill: #ffc107;
-  }
+}
+
+.position-fixed {
+  animation: slideUp 0.3s ease-out;
+}
