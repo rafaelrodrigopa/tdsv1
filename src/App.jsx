@@ -11,14 +11,6 @@ import ProductCard from './Components/Produto/ProductCard/ProductCard';
 
 const App = () => {
 
-  const productData = {
-    id: 1,
-    nome: 'Produto Exemplo',
-    descricao: 'Descrição breve do produto',
-    preco: 99.99,
-    imagem: 'caminho/para/imagem.jpg'
-  };
-
   return (
     <div className="App">
       <CartProvider>
@@ -26,7 +18,6 @@ const App = () => {
         <HeroSection />
         <Produto />
         <Footer />
-        <ProductCard product={productData} />
       </CartProvider>
 
     </div>
