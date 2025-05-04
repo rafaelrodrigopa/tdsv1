@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FiShoppingCart, FiStar, FiClock, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../../../context/CartProvider';
+import { useAddress } from '../../../context/AddressContext'; // Importe o contexto de endereço
 
 const ProductCard = ({ product }) => {
   const [showCartModal, setShowCartModal] = useState(false);
@@ -14,9 +15,21 @@ const ProductCard = ({ product }) => {
     totalPrice
   } = useCart();
 
+  // Obtenha os dados do endereço e frete do contexto
+  const { address, deliveryFee } = useAddress();
+  const deliveryMethod = address?.type || 'pickup'; // 'delivery' ou 'pickup'
+
   // Verifica se o produto já está no carrinho
   const itemInCart = cartItems.find(item => item.id === product.id);
   const currentQuantity = itemInCart ? itemInCart.quantity : 0;
+
+  // Calcula o total incluindo o frete (se for entrega)
+  const calculateTotalWithDelivery = () => {
+    const deliveryCost = deliveryMethod === 'delivery' ? parseFloat(deliveryFee || 0) : 0;
+    return totalPrice + deliveryCost;
+  };
+
+  const totalWithDelivery = calculateTotalWithDelivery();
 
   return (
     <>
@@ -148,6 +161,29 @@ const ProductCard = ({ product }) => {
                   <p className="text-center text-muted py-4">Seu carrinho está vazio</p>
                 ) : (
                   <>
+                    {/* Exibir método de entrega/retirada */}
+                    <div className="mb-3 p-3 bg-light rounded">
+                      <h6 className="mb-2">Método de {deliveryMethod === 'delivery' ? 'Entrega' : 'Retirada'}</h6>
+                      {deliveryMethod === 'delivery' ? (
+                        <>
+                          <p className="mb-1 small">
+                            <strong>Endereço:</strong> {address?.street}, {address?.number}
+                            {address?.complement && `, ${address.complement}`}
+                          </p>
+                          <p className="mb-1 small">
+                            <strong>Bairro:</strong> {address?.neighborhood}
+                          </p>
+                          <p className="mb-1 small">
+                            <strong>Cidade:</strong> {address?.city} - {address?.state}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="mb-0 small">
+                          <strong>Local:</strong> Retirada na loja
+                        </p>
+                      )}
+                    </div>
+
                     <ul className="list-group mb-3">
                       {cartItems.map(item => (
                         <li key={item.id} className="list-group-item">
@@ -190,14 +226,38 @@ const ProductCard = ({ product }) => {
                         </li>
                       ))}
                     </ul>
-                    <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded">
-                      <h5 className="mb-0">Total:</h5>
-                      <h5 className="mb-0 text-primary">
-                        {totalPrice.toLocaleString('pt-BR', { 
-                          style: 'currency', 
-                          currency: 'BRL' 
-                        })}
-                      </h5>
+
+                    {/* Resumo do pedido com frete */}
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
+                        <span>Subtotal:</span>
+                        <span>
+                          {totalPrice.toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                          })}
+                        </span>
+                      </div>
+                      {deliveryMethod === 'delivery' && (
+                        <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
+                          <span>Taxa de entrega:</span>
+                          <span>
+                            {deliveryFee.toLocaleString('pt-BR', { 
+                              style: 'currency', 
+                              currency: 'BRL' 
+                            })}
+                          </span>
+                        </div>
+                      )}
+                      <div className="d-flex justify-content-between align-items-center p-2">
+                        <h5 className="mb-0">Total:</h5>
+                        <h5 className="mb-0 text-primary">
+                          {totalWithDelivery.toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                          })}
+                        </h5>
+                      </div>
                     </div>
                   </>
                 )}
