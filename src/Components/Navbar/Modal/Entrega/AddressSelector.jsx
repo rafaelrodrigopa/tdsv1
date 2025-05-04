@@ -15,11 +15,13 @@ import {
   calculateDeliveryFee,
   getStoreCoordinates
 } from '../../CalculoFrete/deliveryCalculator';
+import { useAddress } from '../../../../context/AddressContext';
 
 const AddressSelector = () => {
+  const { updateAddress, address: contextAddress, deliveryFee: contextDeliveryFee } = useAddress();
   const [showModal, setShowModal] = useState(false);
   const [deliveryOption, setDeliveryOption] = useState(null);
-  const [deliveryFee, setDeliveryFee] = useState(null);
+  const [localDeliveryFee, setLocalDeliveryFee] = useState(null); // Estado local para o frete
   const [error, setError] = useState(null);
   const [cep, setCep] = useState('');
   const [address, setAddress] = useState({
@@ -83,16 +85,19 @@ const AddressSelector = () => {
   const handleDeliverySelection = (option) => {
     setDeliveryOption(option);
     if (option === 'pickup' && storeAddress) {
-      setAddress({
+      const pickupAddress = {
         ...storeAddress,
+        type: 'pickup',
         isStore: true
-      });
+      };
+      setAddress(pickupAddress);
+      updateAddress(pickupAddress, 'pickup', 0);
+      setLocalDeliveryFee(0); // Define o frete como 0 para retirada
     }
   };
 
   const handleContinue = async () => {
     setError(null);
-    setDeliveryFee(null);
     setCalculationDetails(null);
     
     try {
@@ -134,7 +139,17 @@ const AddressSelector = () => {
       
       // Calcula frete
       const fee = calculateDeliveryFee(distanceResult.distance);
-      setDeliveryFee(fee.toFixed(2));
+      const formattedFee = fee.toFixed(2);
+      
+      // Atualiza o contexto e o estado local
+      updateAddress({
+        type: 'delivery',
+        ...address,
+        coordinates: clientCoords,
+        distance: distanceResult.distance
+      }, 'delivery', fee);
+      
+      setLocalDeliveryFee(formattedFee); // Atualiza o estado local do frete
       setShowModal(false);
 
     } catch (err) {
@@ -164,13 +179,12 @@ const AddressSelector = () => {
           error={!storeAddress} 
         />
         <AddressDisplay 
-          deliveryOption={deliveryOption}
+          deliveryOption={deliveryOption || contextAddress?.type}
           storeAddress={storeAddress}
-          address={address}
-          deliveryFee={deliveryFee}
+          address={contextAddress || address}
+          deliveryFee={localDeliveryFee || contextDeliveryFee} // Prioriza o frete local se existir
           onClick={() => setShowModal(true)}
         />
-
       </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>

@@ -7,19 +7,20 @@ import Navbar from './Components/Navbar/Navbar';
 import HeroSection from './Components/Hero/HeroSection';
 import Produto from './Components/Produto/Produto';
 import { CartProvider } from './context/CartProvider';
-import ProductCard from './Components/Produto/ProductCard/ProductCard';
+import { AddressProvider } from './context/AddressContext';
 
 const App = () => {
 
   return (
     <div className="App">
-      <CartProvider>
-        <Navbar />
-        <HeroSection />
-        <Produto />
-        <Footer />
-      </CartProvider>
-
+      <AddressProvider>
+        <CartProvider>
+          <Navbar />
+          <HeroSection />
+          <Produto />
+          <Footer />
+        </CartProvider>
+      </AddressProvider>
     </div>
   );
 };
