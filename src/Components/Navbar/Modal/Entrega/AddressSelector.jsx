@@ -43,9 +43,9 @@ const AddressSelector = () => {
       } catch (error) {
         console.error('Erro ao carregar endereço:', error);
         setStoreAddress({
-          street: 'Estrada Arcílio Federzoni',
+          street: 'Rua Arcílio Federzoni',
           number: '971',
-          neighborhood: 'Jardim Silvia',
+          neighborhood: 'Jardim Silva',
           city: 'Francisco Morato',
           state: 'SP'
         });
@@ -154,19 +154,6 @@ const AddressSelector = () => {
         </Alert>
       )}
       
-      {/*{calculationDetails && (
-        <Alert variant="info" className="mt-2">
-          <div className="d-flex align-items-center">
-            <FaMapMarkerAlt className="me-2" />
-            <div>
-              <strong>Origem:</strong> {getStoreCoordinates().address}<br />
-              <strong>Destino:</strong> {calculationDetails.clientAddress}<br />
-              <strong>Distância calculada:</strong> {calculationDetails.distance.toFixed(2)} km
-            </div>
-          </div>
-        </Alert>
-      )}*/}
-      
       <div 
         className="small text-primary" 
         style={{ cursor: 'pointer' }}
@@ -184,22 +171,6 @@ const AddressSelector = () => {
           onClick={() => setShowModal(true)}
         />
 
-        {/*<Button
-          variant={deliveryOption === 'delivery' ? 'success' : 'outline-secondary'}
-          onClick={() => handleDeliverySelection('delivery')}
-          className="text-start p-3"
-        >
-          <div className="d-flex align-items-center">
-            {deliveryOption === 'delivery' && <FaCheckCircle className="me-2" />}
-            <FaMotorcycle className="me-3" size={24} />
-            <div>
-              <h5 className="mb-1">Entregar no meu endereço</h5>
-              <small className="text-muted">
-                {deliveryFee ? `Frete: R$${deliveryFee}` : 'Frete calculado conforme localização'}
-              </small>
-            </div>
-          </div>
-        </Button>*/}
       </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
