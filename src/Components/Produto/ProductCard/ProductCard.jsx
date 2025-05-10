@@ -3,8 +3,17 @@ import PropTypes from 'prop-types';
 import { FiShoppingCart, FiStar, FiClock, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../../../context/CartProvider';
 import { useAddress } from '../../../context/AddressContext'; // Importe o contexto de endereço
+import AddressChangeModal from './Cart/CartModal/AddressChangeModal'
 
 const ProductCard = ({ product }) => {
+
+  const [showAddressSelector, setShowAddressSelector] = useState(false);
+
+  const handleAddressChange = () => {
+    setShowAddressSelector(true);
+    
+  };
+
   const [showCartModal, setShowCartModal] = useState(false);
   const { 
     cartItems, 
@@ -45,7 +54,7 @@ const ProductCard = ({ product }) => {
               <img
                 src={product.imagem || 'https://source.unsplash.com/random/600x400?food'}
                 className="img-fluid object-fit-cover"
-                alt={product.nome}
+                alt={product.name}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -65,35 +74,18 @@ const ProductCard = ({ product }) => {
           {/* Corpo do card */}
           <div className="card-body d-flex flex-column">
             <div className="d-flex justify-content-between align-items-start mb-2">
-              <h5 className="card-title mb-0 fw-bold">{product.nome}</h5>
+              <h5 className="card-title mb-0 fw-bold">{product.name}</h5>
               <span className="text-primary fw-bold fs-5">
                 {product.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </span>
             </div>
 
             <p className="card-text text-secondary small mb-3 flex-grow-1">
-              {product.descricao || 'Descrição não disponível'}
+              {product.description || 'Descrição não disponível'}
             </p>
-
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <div className="d-flex align-items-center">
-                {[...Array(5)].map((_, i) => (
-                  <FiStar 
-                    key={i} 
-                    className={`me-1 ${i < 4 ? 'text-warning fill-current' : 'text-secondary'}`} 
-                    size={16}
-                  />
-                ))}
-                <small className="text-muted ms-1">(24)</small>
-              </div>
-
-              {product.estoque > 0 && (
-                <div className="d-flex align-items-center text-muted small">
-                  <FiClock className="me-1" size={14} />
-                  <span>30-45 min</span>
-                </div>
-              )}
-            </div>
+            <p className="card-text text-secondary small mb-3 flex-grow-1">
+              <strong>Código do Produto: </strong>{product.codigo || 'Descrição não disponível'}
+            </p>
 
             <button
               className={`btn w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center ${
@@ -163,25 +155,7 @@ const ProductCard = ({ product }) => {
                   <>
                     {/* Exibir método de entrega/retirada */}
                     <div className="mb-3 p-3 bg-light rounded">
-                      <h6 className="mb-2">Método de {deliveryMethod === 'delivery' ? 'Entrega' : 'Retirada'}</h6>
-                      {deliveryMethod === 'delivery' ? (
-                        <>
-                          <p className="mb-1 small">
-                            <strong>Endereço:</strong> {address?.street}, {address?.number}
-                            {address?.complement && `, ${address.complement}`}
-                          </p>
-                          <p className="mb-1 small">
-                            <strong>Bairro:</strong> {address?.neighborhood}
-                          </p>
-                          <p className="mb-1 small">
-                            <strong>Cidade:</strong> {address?.city} - {address?.state}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="mb-0 small">
-                          <strong>Local:</strong> Retirada na loja
-                        </p>
-                      )}
+                      <AddressChangeModal />
                     </div>
 
                     <ul className="list-group mb-3">
@@ -197,7 +171,7 @@ const ProductCard = ({ product }) => {
                                 })}
                               </small>
                               <div className="small text-muted mt-1">
-                                {item.quantity}/{item.estoque} unidades
+                                {item.name || 'Descrição não disponível'}
                               </div>
                             </div>
                             <div className="d-flex align-items-center">
