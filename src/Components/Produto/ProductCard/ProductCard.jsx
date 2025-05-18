@@ -4,10 +4,13 @@ import { FiShoppingCart, FiStar, FiClock, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../../../context/CartProvider';
 import { useAddress } from '../../../context/AddressContext';
 import AddressChangeModal from './Cart/CartModal/AddressChangeModal';
+import FinalizarCompraModal from '../FinalizarCompraModal/FinalizarCompraModal';
 
 const ProductCard = ({ product }) => {
   const [showAddressSelector, setShowAddressSelector] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
+  const [showFinalModal, setShowFinalModal] = useState(false);
+
 
   const {
     addToCart,
@@ -245,6 +248,7 @@ const ProductCard = ({ product }) => {
                   type="button"
                   className="btn btn-primary"
                   disabled={cartItems.length === 0}
+                  onClick={() => setShowFinalModal(true)}
                 >
                   Finalizar Compra
                 </button>
@@ -252,6 +256,11 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/*Renderiza o modal de pagamento*/}
+      {showFinalModal && (
+          <FinalizarCompraModal onClose={() => setShowFinalModal(false)} />
       )}
     </>
   );
