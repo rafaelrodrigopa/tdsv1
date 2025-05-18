@@ -10,7 +10,7 @@ const GOOGLE_GEOCODING_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 const STORE_COORDINATES = {
   lat: -23.2720601,  // Latitude da loja
   lon: -46.7330031,  // Longitude da loja
-  address: "Estrada Arcílio Federzoni, 971, Jardim Silvia, Francisco Morato - SP"
+  address: "Rua Arcílio Federzoni, 971, Jardim Silvia, Francisco Morato - SP"
 };
 
 /**

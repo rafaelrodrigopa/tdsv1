@@ -63,8 +63,8 @@ export const getStoreAddress = async () => {
 // Endereço padrão para fallback
 const getDefaultAddress = () => ({
   street: 'Rua Arcílico Fderzoni ||',
-  number: '986 ||',
-  neighborhood: 'Jardim Silva ||',
+  number: '971 ||',
+  neighborhood: 'Jardim Silvia ||',
   city: 'Francisco Morato ||',
   state: 'São Paulo ||'
 });

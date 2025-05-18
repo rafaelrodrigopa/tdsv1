@@ -47,7 +47,7 @@ const AddressSelector = () => {
         setStoreAddress({
           street: 'Rua Arcílio Federzoni',
           number: '971',
-          neighborhood: 'Jardim Silva',
+          neighborhood: 'Jardim Silvia',
           city: 'Francisco Morato',
           state: 'SP'
         });
