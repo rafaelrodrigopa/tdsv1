@@ -196,17 +196,30 @@ const ProductCard = ({ product }) => {
                           })}
                         </span>
                       </div>
-                      {deliveryMethod === 'delivery' && (
-                        <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
-                          <span>Taxa de entrega:</span>
-                          <span>
-                            {deliveryFee.toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL'
-                            })}
-                          </span>
-                        </div>
-                      )}
+                      {
+                        deliveryMethod === 'delivery' ? (
+                          <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
+                            <span>Taxa de entrega:</span>
+                            <span>
+                              {deliveryFee.toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              })}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
+                            <span>Taxa de entrega:</span>
+                            <span>
+                              {deliveryFee.toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              })}
+                            </span>
+                          </div>
+                        )
+                      }
+
                       <div className="d-flex justify-content-between align-items-center p-2">
                         <h5 className="mb-0">Total:</h5>
                         <h5 className="mb-0 text-primary">
